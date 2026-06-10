@@ -1,4 +1,5 @@
 ﻿using IrisManager.API.Data;
+using IrisManager.API.DTOs;
 using IrisManager.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,20 +18,30 @@ namespace IrisManager.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers([FromQuery] string? name)
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers([FromQuery] string? name)
         {
+            var query = _context.Customers.AsQueryable();
+
             if (!string.IsNullOrWhiteSpace(name))
             {
-                return await _context.Customers
-                    .Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
-                    .ToListAsync();
+                query = query.Where(c => EF.Functions.Like(c.Name, $"%{name}%"));
             }
 
-            return await _context.Customers.ToListAsync();
+            var customers = await query
+                .Select(c => new CustomerDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Phone = c.Phone,
+                    Email = c.Email
+                })
+                .ToListAsync();
+
+            return Ok(customers);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetCustomer(int id)
+        public async Task<ActionResult<CustomerDto>> GetCustomer(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
 
@@ -39,42 +50,73 @@ namespace IrisManager.API.Controllers
                 return NotFound();
             }
 
-            return customer;
+            var customerDto = new CustomerDto
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                Phone = customer.Phone,
+                Email = customer.Email
+            };
+
+            return Ok(customerDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
+        public async Task<ActionResult<CustomerDto>> CreateCustomer(CustomerCreateDto customerDto)
         {
-            var phoneExists = await _context.Customers.AnyAsync(c => c.Phone == customer.Phone);
+            var phoneExists = await _context.Customers.AnyAsync(c => c.Phone == customerDto.Phone);
             if (phoneExists)
             {
                 return Conflict(new { message = "A customer with this phone number already exists." });
             }
 
-            if (!string.IsNullOrWhiteSpace(customer.Email))
+            if (!string.IsNullOrWhiteSpace(customerDto.Email))
             {
-                var emailExists = await _context.Customers.AnyAsync(c => c.Email == customer.Email);
+                var emailExists = await _context.Customers.AnyAsync(c => c.Email == customerDto.Email);
                 if (emailExists)
                 {
                     return Conflict(new { message = "A customer with this email already exists." });
                 }
             }
 
+            var customer = new Customer
+            {
+                Name = customerDto.Name,
+                Phone = customerDto.Phone,
+                Email = customerDto.Email
+            };
+
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
+            var createdDto = new CustomerDto
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                Phone = customer.Phone,
+                Email = customer.Email
+            };
+
+            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, createdDto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCustomer(int id, Customer customer)
+        public async Task<IActionResult> UpdateCustomer(int id, CustomerUpdateDto customerDto)
         {
-            if (id != customer.Id)
+            if (id != customerDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(customer).State = EntityState.Modified;
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.Name = customerDto.Name;
+            customer.Phone = customerDto.Phone;
+            customer.Email = customerDto.Email;
 
             try
             {
@@ -109,7 +151,7 @@ namespace IrisManager.API.Controllers
 
         private bool CustomerExists(int id)
         {
-            return _context.Customers.Any(e => e.Id == id);
+            return _context.Customers.Any(e => e.Id == id)  ;
         }
     }
 }
