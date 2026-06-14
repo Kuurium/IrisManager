@@ -10,6 +10,7 @@ namespace IrisManager.API.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Service> Services { get; set; } 
         public DbSet<Stylist> Stylists { get; set; }
+        public DbSet<Appointment> Appointments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
