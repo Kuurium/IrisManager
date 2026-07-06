@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IrisManager.API.Models
+namespace IrisManager.Domain.Entities
 {
     public class Appointment
     {
@@ -9,7 +9,7 @@ namespace IrisManager.API.Models
 
         [Required]
         public int CustomerId { get; set; }
-        public Customer? CUstomer { get; set; }
+        public Customer? Customer { get; set; }
 
         [Required]
         public int StylistId { get; set; }

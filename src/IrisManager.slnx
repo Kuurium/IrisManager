@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="IrisManager.API/IrisManager.API.csproj" />
+  <Project Path="IrisManager.Domain/IrisManager.Domain.csproj" Id="51fba0ae-0fce-42c7-a26e-01189112e9ab" />
+  <Project Path="IrisManager.Infrastructure/IrisManager.Infrastructure.csproj" Id="2ba9224b-7ef0-438c-ad41-f03d2dad0375" />
 </Solution>
