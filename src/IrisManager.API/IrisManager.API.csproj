@@ -21,4 +21,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IrisManager.Domain\IrisManager.Domain.csproj" />
+    <ProjectReference Include="..\IrisManager.Infrastructure\IrisManager.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

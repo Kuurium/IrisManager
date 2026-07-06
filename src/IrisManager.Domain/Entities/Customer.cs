@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IrisManager.API.Models
+namespace IrisManager.Domain.Entities
 {
     public class Customer
     {

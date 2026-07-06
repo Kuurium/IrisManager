@@ -1,7 +1,7 @@
-﻿using IrisManager.API.Models;
+﻿using IrisManager.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace IrisManager.API.Data
+namespace IrisManager.Infrastructure.Context
 {
     public class ApplicationDbContext : DbContext
     {
