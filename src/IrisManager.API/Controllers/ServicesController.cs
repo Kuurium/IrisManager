@@ -1,8 +1,6 @@
-﻿using IrisManager.API.Data;
-using IrisManager.API.DTOs;
-using IrisManager.API.Models;
+﻿using IrisManager.Application.Contract;
+using IrisManager.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace IrisManager.API.Controllers
 {
@@ -10,129 +8,49 @@ namespace IrisManager.API.Controllers
     [ApiController]
     public class ServicesController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IServiceService _serviceService;
 
-        public ServicesController(ApplicationDbContext context)
+        public ServicesController(IServiceService serviceService)
         {
-            _context = context;
+            _serviceService = serviceService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ServiceDto>>> GetServices()
         {
-            var services = await _context.Services
-                .Select(s => new ServiceDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    Price = s.Price,
-                    DurationMinutes = s.DurationMinutes
-                })
-                .ToListAsync();
-
+            var services = await _serviceService.GetAllServicesAsync();
             return Ok(services);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceDto>> GetService(int id)
         {
-            var service = await _context.Services.FindAsync(id);
-
-            if (service == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new ServiceDto
-            {
-                Id = service.Id,
-                Name = service.Name,
-                Description = service.Description,
-                Price = service.Price,
-                DurationMinutes = service.DurationMinutes
-            });
+            var service = await _serviceService.GetServiceByIdAsync(id);
+            if (service == null) return NotFound(new { message = "Service not found." });
+            return Ok(service);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceDto>> CreateService(ServiceCreateDto serviceDto)
+        public async Task<ActionResult<ServiceDto>> CreateService(ServiceCreateDto dto)
         {
-            var service = new Service
-            {
-                Name = serviceDto.Name,
-                Description = serviceDto.Description,
-                Price = serviceDto.Price,
-                DurationMinutes = serviceDto.DurationMinutes
-            };
-
-            _context.Services.Add(service);
-            await _context.SaveChangesAsync();
-
-            var createdDto = new ServiceDto
-            {
-                Id = service.Id,
-                Name = service.Name,
-                Description = service.Description,
-                Price = service.Price,
-                DurationMinutes = service.DurationMinutes
-            };
-
-            return CreatedAtAction(nameof(GetService), new { id = service.Id }, createdDto);
+            var newService = await _serviceService.CreateServiceAsync(dto);
+            return CreatedAtAction(nameof(GetService), new { id = newService.Id }, newService);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateService(int id, ServiceUpdateDto serviceDto)
+        public async Task<IActionResult> UpdateService(int id, ServiceUpdateDto dto)
         {
-            if (id != serviceDto.Id)
-            {
-                return BadRequest();
-            }
-
-            var service = await _context.Services.FindAsync(id);
-            if (service == null)
-            {
-                return NotFound();
-            }
-
-            service.Name = serviceDto.Name;
-            service.Description = serviceDto.Description;
-            service.Price = serviceDto.Price;
-            service.DurationMinutes = serviceDto.DurationMinutes;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ServiceExists(id))
-                {
-                    return NotFound();
-                }
-                throw;
-            }
-
+            var updated = await _serviceService.UpdateServiceAsync(id, dto);
+            if (!updated) return NotFound(new { message = "Service not found." });
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteService(int id)
         {
-            var service = await _context.Services.FindAsync(id);
-            if (service == null)
-            {
-                return NotFound();
-            }
-
-            _context.Services.Remove(service);
-            await _context.SaveChangesAsync();
-
+            var deleted = await _serviceService.DeleteServiceAsync(id);
+            if (!deleted) return NotFound(new { message = "Service not found." });
             return NoContent();
-        }
-
-        private bool ServiceExists(int id)
-        {
-            return _context.Services.Any(e => e.Id == id);
         }
     }
 }

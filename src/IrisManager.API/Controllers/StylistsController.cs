@@ -1,10 +1,7 @@
-﻿using IrisManager.API.Data;
-using IrisManager.API.DTOs;
-using IrisManager.API.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using IrisManager.Application.Dtos;
+using IrisManager.Application.Contract;
+using IrisManager.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace IrisManager.API.Controllers
 {
@@ -12,109 +9,40 @@ namespace IrisManager.API.Controllers
     [ApiController]
     public class StylistsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IStylistService _stylistService;
 
-        public StylistsController(ApplicationDbContext context)
+        public StylistsController(IStylistService stylistService)
         {
-            _context = context;
+            _stylistService = stylistService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StylistDto>>> GetStylists([FromQuery] bool activeOnly = false)
         {
-            var query = _context.Stylists.AsQueryable();
-
-            if (activeOnly)
-            {
-                query = query.Where(s => s.IsActive);
-            }
-
-            var stylists = await query
-                .Select(s => new StylistDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Specialty = s.Specialty,
-                    IsActive = s.IsActive
-                })
-                .ToListAsync();
-
+            var stylists = await _stylistService.GetAllStylistsAsync(activeOnly);
             return Ok(stylists);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<StylistDto>> GetStylist(int id)
         {
-            var stylist = await _context.Stylists.FindAsync(id);
-
-            if (stylist == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new StylistDto
-            {
-                Id = stylist.Id,
-                Name = stylist.Name,
-                Specialty = stylist.Specialty,
-                IsActive = stylist.IsActive
-            });
+            var stylist = await _stylistService.GetStylistByIdAsync(id);
+            if (stylist == null) return NotFound(new { message = "Stylist not found." });
+            return Ok(stylist);
         }
 
         [HttpPost]
-        public async Task<ActionResult<StylistDto>> CreateStylist(StylistCreateDto stylistDto)
+        public async Task<ActionResult<StylistDto>> CreateStylist(StylistCreateDto dto)
         {
-            var stylist = new Stylist
-            {
-                Name = stylistDto.Name,
-                Specialty = stylistDto.Specialty,
-                IsActive = stylistDto.IsActive
-            };
-
-            _context.Stylists.Add(stylist);
-            await _context.SaveChangesAsync();
-
-            var createdDto = new StylistDto
-            {
-                Id = stylist.Id,
-                Name = stylist.Name,
-                Specialty = stylist.Specialty,
-                IsActive = stylist.IsActive
-            };
-
-            return CreatedAtAction(nameof(GetStylist), new { id = stylist.Id }, createdDto);
+            var newStylist = await _stylistService.CreateStylistAsync(dto);
+            return CreatedAtAction(nameof(GetStylist), new { id = newStylist.Id }, newStylist);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStylist(int id, StylistUpdateDto stylistDto)
+        public async Task<IActionResult> UpdateStylist(int id, StylistUpdateDto dto)
         {
-            if (id != stylistDto.Id)
-            {
-                return BadRequest();
-            }
-
-            var stylist = await _context.Stylists.FindAsync(id);
-            if (stylist == null)
-            {
-                return NotFound();
-            }
-
-            stylist.Name = stylistDto.Name;
-            stylist.Specialty = stylistDto.Specialty;
-            stylist.IsActive = stylistDto.IsActive;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!StylistExists(id))
-                {
-                    return NotFound();
-                }
-                throw;
-            }
+            var updated = await _stylistService.UpdateStylistAsync(id, dto);
+            if (!updated) return NotFound(new { message = "Stylist not found." });
             return NoContent();
         }
 
@@ -122,21 +50,9 @@ namespace IrisManager.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStylist(int id)
         {
-            var stylist = await _context.Stylists.FindAsync(id);
-            if (stylist == null)
-            {
-                return NotFound();
-            }
-
-            _context.Stylists.Remove(stylist);
-            await _context.SaveChangesAsync();
-
+            var deleted = await _stylistService.DeleteStylistAsync(id);
+            if (!deleted) return NotFound(new { message = "Stylist not found." });
             return NoContent();
-        }
-
-        private bool StylistExists(int id)
-        {
-            return _context.Stylists.Any(equals => equals.Id == id);
         }
     }
 }

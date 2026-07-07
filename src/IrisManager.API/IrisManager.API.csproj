@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IrisManager.Application\IrisManager.Application.csproj" />
     <ProjectReference Include="..\IrisManager.Domain\IrisManager.Domain.csproj" />
     <ProjectReference Include="..\IrisManager.Infrastructure\IrisManager.Infrastructure.csproj" />
   </ItemGroup>

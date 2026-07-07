@@ -1,4 +1,4 @@
-﻿namespace IrisManager.API.DTOs
+﻿namespace IrisManager.Application.Dtos
 {
     public class AppointmentDto
     {

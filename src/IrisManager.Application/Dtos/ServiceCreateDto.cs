@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IrisManager.API.DTOs
+namespace IrisManager.Application.Dtos
 {
     public class ServiceCreateDto
     {

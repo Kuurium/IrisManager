@@ -1,9 +1,6 @@
-﻿using IrisManager.API.Data;
-using IrisManager.API.DTOs;
-using IrisManager.API.Models;
+﻿using IrisManager.Application.Contract;
+using IrisManager.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
 
 namespace IrisManager.API.Controllers
 {
@@ -11,110 +8,49 @@ namespace IrisManager.API.Controllers
     [ApiController]
     public class AppointmentsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IAppointmentService _appointmentService;
 
-        public AppointmentsController(ApplicationDbContext context)
+        public AppointmentsController(IAppointmentService appointmentService)
         {
-            _context = context;
+            _appointmentService = appointmentService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments([FromQuery] DateTime? date)
+        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments()
         {
-            var query = _context.Appointments.AsQueryable();
-
-            if (date.HasValue)
-            {
-                query = query.Where(a => a.StartTime.Date == date.Value.Date);
-            }
-
-            var appointments = await query
-                .Select(a => new AppointmentDto
-                {
-                    Id = a.Id,
-                    StylistId = a.StylistId,
-                    ServiceId = a.ServiceId,
-                    StartTime = a.StartTime,
-                    EndTime = a.EndTime,
-                    Status = a.Status
-                })
-            .ToListAsync();
-
+            var appointments = await _appointmentService.GetAllAppointmentsAsync();
             return Ok(appointments);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<AppointmentDto>> GetAppointment(int id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
 
             if (appointment == null) 
             {
-                return NotFound();
+                return NotFound(new { message = "Appointment not found"});
             }
 
-            return Ok(new AppointmentDto
-            {
-                Id = appointment.Id,
-                CustomerId = appointment.CustomerId,
-                StylistId = appointment.StylistId,
-                ServiceId = appointment.ServiceId,
-                StartTime = appointment.StartTime,
-                EndTime = appointment.EndTime,
-                Status = appointment.Status
-            });
+            return Ok(appointment);
         }
 
         [HttpPost]
-        public async Task<ActionResult<AppointmentDto>> CreateAppointment(Appointment dto)
+        public async Task<ActionResult<AppointmentDto>> CreateAppointment(AppointmentCreateDto dto)
         {
-            var customerExists = await _context.Customers.AnyAsync(c => c.Id == dto.CustomerId);
-            if (!customerExists) return BadRequest(new { message = "Customer not found." });
-
-            var stylist = await _context.Stylists.FindAsync(dto.StylistId);
-            if (stylist == null || !stylist.IsActive) return BadRequest(new { message = "Stylist not found or inactive." });
-
-            var service = await _context.Services.FindAsync(dto.ServiceId);
-            if (service == null) return BadRequest(new { message = "Service not found." });
-
-            var calculatedEndTime = dto.StartTime.AddMinutes(service.DurationMinutes);
-
-            var isStylistBooked = await _context.Appointments
-                .AnyAsync(a => a.StylistId == dto.StylistId
-                && a.Status != "Cancelled"
-                && dto.StartTime < a.EndTime
-                && calculatedEndTime > a.StartTime);
-
-            if (isStylistBooked)
+            try
             {
-                return Conflict(new { message = "The stylist is already booked for this time slot. " });
+                var newAppointment = await _appointmentService.CreateAppointmentAsync(dto);
+                return CreatedAtAction(nameof(GetAppointment), new { id = newAppointment.Id }, newAppointment);
             }
-
-            var appointment = new Appointment
+            catch (ArgumentException ex)
             {
-                CustomerId = dto.CustomerId,
-                StylistId = dto.StylistId,
-                ServiceId = dto.ServiceId,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                Status = "Scheduled"
-            };
-
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
-
-            var createdDto = new AppointmentDto
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
             {
-                Id = appointment.Id,
-                CustomerId = appointment.CustomerId,
-                StylistId = appointment.StylistId,
-                ServiceId = appointment.ServiceId,
-                StartTime = appointment.StartTime,
-                EndTime = appointment.EndTime,
-                Status = appointment.Status
-            };
-
-            return CreatedAtAction(nameof(GetAppointment), new { id = appointment.Id }, createdDto);
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpPatch("{id}/status")]
@@ -126,16 +62,26 @@ namespace IrisManager.API.Controllers
                 return BadRequest(new { message = "Invalid status. Must be scheduled, Completed, or Cancelled" });
             }
 
-            var appointment = await _context.Appointments.FindAsync(id);
-            if (appointment == null)
+            var updated = await _appointmentService.UpdateAppointmentStatusAsync(id, dto);
+
+            if (!updated)
             {
-                return NotFound();
+                return NotFound(new { message = "appointment not found." });
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAppointment(int id)
+        {
+            var deleted = await _appointmentService.DeleteAppointmentAsync(id);
+
+            if (!deleted)
+            {
+                return NotFound(new { message = "Appointment not found." });
             }
 
-            appointment.Status = dto.Status;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NotFound();
         }
     }
 }
