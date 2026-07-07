@@ -1,10 +1,15 @@
-﻿namespace IrisManager.API.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace IrisManager.Application.Dtos
 {
-    public class CustomerDto
+    public class CustomerCreateDto
     {
-        public int Id { get; set; }
+        [Required]
         public string Name { get; set; } = string.Empty;
+
+        [Required]
         public string Phone { get; set; } = string.Empty;
+
         public string? Email { get; set; }
     }
 }
