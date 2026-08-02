@@ -1,0 +1,31 @@
+<div class="card shadow-sm border-0">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">Registrar Cliente</h5>
+  </div>
+  <div class="card-body">
+    
+    <form (ngSubmit)="onSubmit()">
+      
+      <div class="mb-3">
+        <label class="form-label fw-bold">Nombre Completo</label>
+        <input type="text" class="form-control" name="name" [(ngModel)]="customer.name" placeholder="Ej. Juan Pérez" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Correo Electrónico</label>
+        <input type="email" class="form-control" name="email" [(ngModel)]="customer.email" placeholder="juan@correo.com" required>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold">Teléfono</label>
+        <input type="tel" class="form-control" name="phone" [(ngModel)]="customer.phone" placeholder="Ej. 809-555-5555">
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 fw-bold">
+        Guardar Cliente
+      </button>
+      
+    </form>
+    
+  </div>
+</div>
