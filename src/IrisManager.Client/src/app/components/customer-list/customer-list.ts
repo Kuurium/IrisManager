@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Customer } from '../../core/models/customer';
 
 @Component({
   selector: 'app-customer-list',
@@ -8,7 +9,18 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 })
 export class CustomerListComponent {
   @Input() customers: any[] = []; 
+  @Input() sortColumn: string = '';
+  @Input() sortAscending: boolean = true;
   
-  @Output() onEdit = new EventEmitter<any>();
+@Output() onEdit = new EventEmitter<Customer>();
   @Output() onDelete = new EventEmitter<number>();
+  @Output() onSort = new EventEmitter<string>();
+
+  edit(customer: Customer) { this.onEdit.emit(customer); }
+  delete(id: number) { this.onDelete.emit(id); }
+
+  sortBy(column: string) {
+    this.onSort.emit(column);
+  }
+  
 }

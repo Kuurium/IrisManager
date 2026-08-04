@@ -7,18 +7,75 @@
 <div class="container">
   <div class="row">
     <div class="col-md-4 mb-4">
-      <app-customer-form 
-        [customer]="newCustomer" 
-        (onSave)="saveCustomer()">
+      <app-customer-form
+        [customer]="newCustomer"
+        (onSave)="loadCustomers()">
       </app-customer-form>
     </div>
     
     <div class="col-md-8">
-      <app-customer-list 
-        [customers]="customers"
-        (onEdit)="editCustomer($event)"
-        (onDelete)="deleteCustomer($event)">
-      </app-customer-list>
+      
+      <div class="mb-3">
+        <input 
+          type="text" 
+          class="form-control"
+          placeholder="Buscar por nombre, correo o teléfono..." 
+          [(ngModel)]="searchTerm"
+        >
+      </div>
+
+      @if (isLoading) {
+        <div class="text-center my-5">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="text-muted mt-2">Cargando clientes, por favor espera...</p>
+        </div>
+      } @else {
+        
+        <app-customer-list 
+          [customers]="paginatedCustomers"
+          [sortColumn]="sortColumn"
+          [sortAscending]="sortAscending"
+          (onEdit)="editCustomer($event)"
+          (onDelete)="deleteCustomer($event)"
+          (onSort)="handleSort($event)">
+        </app-customer-list>
+
+        @if (totalPages > 1) {
+          <nav aria-label="Navegación de páginas" class="mt-4">
+            <ul class="pagination justify-content-center">
+              
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">Anterior</a>
+              </li>
+              
+              @for (page of pagesArray; track page) {
+                <li class="page-item" [class.active]="currentPage === page">
+                  <a class="page-link" href="javascript:void(0)" (click)="changePage(page)">{{ page }}</a>
+                </li>
+              }
+              
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">Siguiente</a>
+              </li>
+              
+            </ul>
+          </nav>
+        }
+      }
     </div>
   </div>
+
+  <app-customer-list 
+    [customers]="filteredCustomers"
+    (onEdit)="editCustomer($event)"
+    (onDelete)="deleteCustomer($event)">
+  </app-customer-list>
+  
+
+  <hr class="my-5 border-2 border-secondary"> 
+  <app-stylist-list></app-stylist-list>
+
+
 </div>
