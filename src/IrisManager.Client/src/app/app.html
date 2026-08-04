@@ -34,12 +34,12 @@
       } @else {
         
         <app-customer-list 
-          [customers]="paginatedCustomers"
-          [sortColumn]="sortColumn"
-          [sortAscending]="sortAscending"
-          (onEdit)="editCustomer($event)"
-          (onDelete)="deleteCustomer($event)"
-          (onSort)="handleSort($event)">
+          [customers]="paginatedCustomers" 
+  [sortColumn]="sortColumn" 
+  [sortAscending]="sortAscending" 
+  (onEdit)="editCustomer($event)" 
+  (onDelete)="deleteCustomer($event)" 
+  (onSort)="handleSort($event)">
         </app-customer-list>
 
         @if (totalPages > 1) {

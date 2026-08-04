@@ -39,18 +39,32 @@
         
         <tbody>
           @for (customer of customers; track customer.id) {
+            <td>
+  @if (customer.isActive) {
+    <span class="badge bg-success">Activo</span>
+  } @else {
+    <span class="badge bg-danger">Inactivo</span>
+  }
+</td>
             <tr>
               <td>{{ customer.id }}</td>
               <td>{{ customer.name }}</td>
               <td>{{ customer.email }}</td>
               <td>{{ customer.phone }}</td>
+              <th class="user-select-none" style="cursor: pointer; width: 15%;" (click)="sortBy('isActive')">
+  <div class="d-flex justify-content-between align-items-center">
+    Estado
+    @if (sortColumn === 'isActive') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
+  </div>
+</th>
               <td class="text-center">
+                
                 <button class="btn btn-warning btn-sm me-2" (click)="onEdit.emit(customer)">
                    Editar
                 </button>
-                <button class="btn btn-danger btn-sm" (click)="onDelete.emit(customer.id)">
-                   Eliminar
-                </button>
+                <button class="btn btn-danger btn-sm" (click)="confirmDelete(customer)">
+    Desactivar
+</button>
               </td>
             </tr>
           } @empty {
