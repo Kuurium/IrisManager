@@ -1,0 +1,67 @@
+<div class="modal d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      
+
+      <div class="modal-header">
+        <h5 class="modal-title">Gestión de Estilista</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form #form="ngForm" (ngSubmit)="onSubmit()">
+            
+            <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" class="form-control" name="name" [(ngModel)]="formData.name" 
+                       required maxlength="100" #nameCtrl="ngModel">
+                <div *ngIf="nameCtrl.invalid && (nameCtrl.dirty || nameCtrl.touched)" class="text-danger small mt-1">
+                    <span *ngIf="nameCtrl.errors?.['required']">El nombre es obligatorio.</span>
+                    <span *ngIf="nameCtrl.errors?.['maxlength']">El nombre no puede exceder los 100 caracteres.</span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Especialidad</label>
+                <input type="text" class="form-control" name="specialty" [(ngModel)]="formData.specialty" 
+                       required #specialtyCtrl="ngModel">
+                <div *ngIf="specialtyCtrl.invalid && (specialtyCtrl.dirty || specialtyCtrl.touched)" class="text-danger small mt-1">
+                    <span *ngIf="specialtyCtrl.errors?.['required']">La especialidad es obligatoria.</span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" name="email" [(ngModel)]="formData.email" 
+                       required email #emailCtrl="ngModel">
+                <div *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)" class="text-danger small mt-1">
+                    <span *ngIf="emailCtrl.errors?.['required']">El correo es obligatorio.</span>
+                    <span *ngIf="emailCtrl.errors?.['email']">El formato del correo es inválido.</span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="text" class="form-control" name="phone" [(ngModel)]="formData.phone" 
+                       required pattern="^[0-9]+$" #phoneCtrl="ngModel">
+                <div *ngIf="phoneCtrl.invalid && (phoneCtrl.dirty || phoneCtrl.touched)" class="text-danger small mt-1">
+                    <span *ngIf="phoneCtrl.errors?.['required']">El número de teléfono es obligatorio.</span>
+                    <span *ngIf="phoneCtrl.errors?.['pattern']">El formato del teléfono es inválido (solo números).</span>
+                </div>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="isActive" [(ngModel)]="formData.isActive" id="isActiveCheck">
+                <label class="form-check-label" for="isActiveCheck">Activo</label>
+            </div>
+
+            <div class="modal-footer border-0 px-0 pb-0">
+                <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+            </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

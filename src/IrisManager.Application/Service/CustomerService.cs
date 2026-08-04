@@ -23,7 +23,9 @@ namespace IrisManager.Application.Service
                 Id = c.Id,
                 Name = c.Name,
                 Email = c.Email,
-                Phone = c.Phone
+                Phone = c.Phone,
+                IsActive = c.IsActive
+
             });
         }
             public async Task<CustomerDto?> GetCustomerByIdAsync(int id)
@@ -36,7 +38,8 @@ namespace IrisManager.Application.Service
                 Id = customer.Id,
                 Name = customer.Name,
                 Email = customer.Email,
-                Phone = customer.Phone
+                Phone = customer.Phone,
+                IsActive = customer.IsActive
             };
         }
 
@@ -80,7 +83,8 @@ namespace IrisManager.Application.Service
             var customer = await _customerRepository.GetByIdAsync(id);
             if (customer == null) return false;
 
-            _customerRepository.Delete(customer);
+            customer.IsActive = false;
+
             await _customerRepository.SaveChangesAsync();
             return true;
         }

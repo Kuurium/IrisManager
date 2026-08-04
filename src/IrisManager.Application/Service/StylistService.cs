@@ -27,6 +27,8 @@ namespace IrisManager.Application.Service
             {
                 Id = s.Id,
                 Name = s.Name,
+                Email = s.Email,
+                Phone = s.Phone,
                 Specialty = s.Specialty,
                 IsActive = s.IsActive
             });
@@ -41,6 +43,8 @@ namespace IrisManager.Application.Service
             {
                 Id = stylist.Id,
                 Name = stylist.Name,
+                Email = stylist.Email,
+                Phone = stylist.Phone,
                 Specialty = stylist.Specialty,
                 IsActive = stylist.IsActive
             };
@@ -51,6 +55,8 @@ namespace IrisManager.Application.Service
             var stylist = new Stylist
             {
                 Name = dto.Name,
+                Email = dto.Email, 
+                Phone = dto.Phone,
                 Specialty = dto.Specialty,
                 IsActive = dto.IsActive
             };
@@ -73,6 +79,8 @@ namespace IrisManager.Application.Service
             if (stylist == null) return false;
 
             stylist.Name = dto.Name;
+            stylist.Email = dto.Email;
+            stylist.Phone = dto.Phone;
             stylist.Specialty = dto.Specialty;
             stylist.IsActive = dto.IsActive;
 
@@ -85,8 +93,11 @@ namespace IrisManager.Application.Service
         {
             var stylist = await _stylistRepository.GetByIdAsync(id);
             if (stylist == null) return false;
+            stylist.IsActive = false;
 
-            _stylistRepository.Delete(stylist);
+
+            // _stylistRepository.Update(stylist);
+
             await _stylistRepository.SaveChangesAsync();
             return true;
         }

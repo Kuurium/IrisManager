@@ -53,6 +53,7 @@ namespace IrisManager.API.Controllers
             var deleted = await _stylistService.DeleteStylistAsync(id);
             if (!deleted) return NotFound(new { message = "Stylist not found." });
             return NoContent();
+
         }
     }
 }

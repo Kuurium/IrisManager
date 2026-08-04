@@ -8,20 +8,25 @@ import { Customer } from '../models/customer';
   providedIn: 'root'
 })
 export class CustomerService {
+  
   private http = inject(HttpClient);
+  
+  private apiUrl = `${environment.apiUrl}/customers`; 
 
-  private apiUrl = 'https://localhost:7154/api/customers'; 
+  getCustomers(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(this.apiUrl);
+  }
 
-  getCustomers(): Observable<any> {
-    return this.http.get(this.apiUrl);
+  createCustomer(customer: Customer): Observable<Customer> {
+    return this.http.post<Customer>(this.apiUrl, customer);
   }
-  createCustomer(customer: any): Observable<any> {
-    return this.http.post(this.apiUrl, customer);
+
+  updateCustomer(id: number, customer: Customer): Observable<Customer> {
+    return this.http.put<Customer>(`${this.apiUrl}/${id}`, customer);
   }
-  updateCustomer(id: number, customer: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, customer);
-  }
+
   deleteCustomer(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+
 }

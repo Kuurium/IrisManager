@@ -1,31 +1,52 @@
-<div class="card shadow-sm border-0">
-  <div class="card-header bg-primary text-white">
-    <h5 class="mb-0">Registrar Cliente</h5>
-  </div>
-  <div class="card-body">
+<form [formGroup]="customerForm" (ngSubmit)="onSubmit()" novalidate>
+  
+  <div class="mb-3">
+    <label for="name" class="form-label">Nombre del Cliente</label>
+    <input 
+      type="text" 
+      id="name" 
+      class="form-control" 
+      formControlName="name" 
+      [ngClass]="{'is-invalid': customerForm.get('name')?.invalid && (customerForm.get('name')?.dirty || customerForm.get('name')?.touched)}">
     
-    <form (ngSubmit)="onSubmit()">
-      
-      <div class="mb-3">
-        <label class="form-label fw-bold">Nombre Completo</label>
-        <input type="text" class="form-control" name="name" [(ngModel)]="customer.name" placeholder="Ej. Juan Pérez" required>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label fw-bold">Correo Electrónico</label>
-        <input type="email" class="form-control" name="email" [(ngModel)]="customer.email" placeholder="juan@correo.com" required>
-      </div>
-
-      <div class="mb-4">
-        <label class="form-label fw-bold">Teléfono</label>
-        <input type="tel" class="form-control" name="phone" [(ngModel)]="customer.phone" placeholder="Ej. 809-555-5555">
-      </div>
-
-      <button type="submit" class="btn btn-primary w-100 fw-bold">
-        Guardar Cliente
-      </button>
-      
-    </form>
-    
+    <div *ngIf="customerForm.get('name')?.invalid && (customerForm.get('name')?.dirty || customerForm.get('name')?.touched)" class="invalid-feedback">
+      <div *ngIf="customerForm.get('name')?.hasError('required')">El nombre es obligatorio.</div>
+      <div *ngIf="customerForm.get('name')?.hasError('minlength')">El nombre debe tener al menos 3 caracteres.</div>
+    </div>
   </div>
-</div>
+
+  <div class="mb-3">
+    <label for="email" class="form-label">Correo Electrónico</label>
+    <input 
+      type="email" 
+      id="email" 
+      class="form-control" 
+      formControlName="email" 
+      [ngClass]="{'is-invalid': customerForm.get('email')?.invalid && (customerForm.get('email')?.dirty || customerForm.get('email')?.touched)}">
+    
+    <div *ngIf="customerForm.get('email')?.invalid && (customerForm.get('email')?.dirty || customerForm.get('email')?.touched)" class="invalid-feedback">
+      <div *ngIf="customerForm.get('email')?.hasError('required')">El correo es obligatorio.</div>
+      <div *ngIf="customerForm.get('email')?.hasError('email')">Ingrese un formato de correo válido (ej. usuario@dominio.com).</div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="phone" class="form-label">Teléfono</label>
+    <input 
+      type="text" 
+      id="phone" 
+      class="form-control" 
+      formControlName="phone" 
+      [ngClass]="{'is-invalid': customerForm.get('phone')?.invalid && (customerForm.get('phone')?.dirty || customerForm.get('phone')?.touched)}">
+    
+    <div *ngIf="customerForm.get('phone')?.invalid && (customerForm.get('phone')?.dirty || customerForm.get('phone')?.touched)" class="invalid-feedback">
+      <div *ngIf="customerForm.get('phone')?.hasError('required')">El teléfono es obligatorio.</div>
+      <div *ngIf="customerForm.get('phone')?.hasError('pattern')">Solo se permiten números (mínimo 8 dígitos).</div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="customerForm.invalid">
+    Guardar Cliente
+  </button>
+
+</form>
