@@ -1,4 +1,14 @@
-<div class="card shadow-sm border-0">
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <a class="btn btn-outline-secondary" routerLink="/">
+    &larr; Volver
+  </a>
+  
+  <h2 class="m-0">Gestión de Clientes</h2>
+  
+  <a class="btn btn-primary" routerLink="/clientes/nuevo">
+    + Nuevo Cliente
+  </a>
+</div><div class="card shadow-sm border-0">
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover table-striped mb-0">
@@ -45,19 +55,14 @@
               <td>{{ customer.email }}</td>
               <td>{{ customer.phone }}</td>
               <td class="text-center">
-                <button class="btn btn-warning btn-sm me-2" (click)="onEdit.emit(customer)">
-                   Editar
-                </button>
-                <button class="btn btn-danger btn-sm" (click)="onDelete.emit(customer.id)">
-                   Eliminar
-                </button>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="5" class="text-center p-4 text-muted">
-                No hay clientes registrados en este momento.
-              </td>
+  <button class="btn btn-sm btn-outline-primary me-2" (click)="edit(customer)">
+    <i class="bi bi-pencil"></i> Editar
+  </button>
+  
+  <button class="btn btn-sm btn-outline-danger" (click)="delete(customer.id!)">
+    <i class="bi bi-trash"></i> Eliminar
+  </button>
+</td>
             </tr>
           }
         </tbody>

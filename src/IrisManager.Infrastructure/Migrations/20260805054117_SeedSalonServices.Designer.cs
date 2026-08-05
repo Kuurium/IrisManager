@@ -4,6 +4,7 @@ using IrisManager.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IrisManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260805054117_SeedSalonServices")]
+    partial class SeedSalonServices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,9 +38,6 @@ namespace IrisManager.Infrastructure.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PaymentMethod")
                         .HasColumnType("nvarchar(max)");
@@ -147,161 +147,161 @@ namespace IrisManager.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            DurationMinutes = 45,
+                            DurationMinutes = 0,
                             Name = "Lavado y Secado",
                             Price = 500m
                         },
                         new
                         {
                             Id = 2,
-                            DurationMinutes = 60,
+                            DurationMinutes = 0,
                             Name = "Corte de Cabello (Dama)",
                             Price = 800m
                         },
                         new
                         {
                             Id = 3,
-                            DurationMinutes = 30,
+                            DurationMinutes = 0,
                             Name = "Corte de Cabello (Caballero)",
                             Price = 400m
                         },
                         new
                         {
                             Id = 4,
-                            DurationMinutes = 30,
+                            DurationMinutes = 0,
                             Name = "Corte de Puntas",
                             Price = 300m
                         },
                         new
                         {
                             Id = 5,
-                            DurationMinutes = 90,
+                            DurationMinutes = 0,
                             Name = "Peinado Elaborado / Eventos",
                             Price = 1200m
                         },
                         new
                         {
                             Id = 6,
-                            DurationMinutes = 120,
+                            DurationMinutes = 0,
                             Name = "Tinte Completo",
                             Price = 2500m
                         },
                         new
                         {
                             Id = 7,
-                            DurationMinutes = 60,
+                            DurationMinutes = 0,
                             Name = "Retoque de Raíces",
                             Price = 1200m
                         },
                         new
                         {
                             Id = 8,
-                            DurationMinutes = 180,
+                            DurationMinutes = 0,
                             Name = "Highlights / Rayitos",
                             Price = 3000m
                         },
                         new
                         {
                             Id = 9,
-                            DurationMinutes = 240,
+                            DurationMinutes = 0,
                             Name = "Balayage",
                             Price = 4500m
                         },
                         new
                         {
                             Id = 10,
-                            DurationMinutes = 180,
+                            DurationMinutes = 0,
                             Name = "Aplicación de Keratina",
                             Price = 3500m
                         },
                         new
                         {
                             Id = 11,
-                            DurationMinutes = 120,
+                            DurationMinutes = 0,
                             Name = "Cirugía Capilar / Botox",
                             Price = 3000m
                         },
                         new
                         {
                             Id = 12,
-                            DurationMinutes = 45,
+                            DurationMinutes = 0,
                             Name = "Tratamiento Profundo (Mascarilla)",
                             Price = 600m
                         },
                         new
                         {
                             Id = 13,
-                            DurationMinutes = 45,
+                            DurationMinutes = 0,
                             Name = "Manicura Regular",
                             Price = 400m
                         },
                         new
                         {
                             Id = 14,
-                            DurationMinutes = 60,
+                            DurationMinutes = 0,
                             Name = "Pedicura Regular",
                             Price = 600m
                         },
                         new
                         {
                             Id = 15,
-                            DurationMinutes = 120,
+                            DurationMinutes = 0,
                             Name = "Uñas Acrílicas",
                             Price = 1500m
                         },
                         new
                         {
                             Id = 16,
-                            DurationMinutes = 90,
+                            DurationMinutes = 0,
                             Name = "Relleno de Acrílico",
                             Price = 900m
                         },
                         new
                         {
                             Id = 17,
-                            DurationMinutes = 60,
+                            DurationMinutes = 0,
                             Name = "Esmaltado en Gel",
                             Price = 700m
                         },
                         new
                         {
                             Id = 18,
-                            DurationMinutes = 30,
+                            DurationMinutes = 0,
                             Name = "Retiro de Acrílico / Gel",
                             Price = 300m
                         },
                         new
                         {
                             Id = 19,
-                            DurationMinutes = 20,
+                            DurationMinutes = 0,
                             Name = "Diseño y Depilación de Cejas",
                             Price = 300m
                         },
                         new
                         {
                             Id = 20,
-                            DurationMinutes = 30,
+                            DurationMinutes = 0,
                             Name = "Tintado de Cejas",
                             Price = 400m
                         },
                         new
                         {
                             Id = 21,
-                            DurationMinutes = 30,
+                            DurationMinutes = 0,
                             Name = "Depilación Facial (Cera)",
                             Price = 500m
                         },
                         new
                         {
                             Id = 22,
-                            DurationMinutes = 120,
+                            DurationMinutes = 0,
                             Name = "Postura de Pestañas (Pelo a Pelo)",
                             Price = 1800m
                         },
                         new
                         {
                             Id = 23,
-                            DurationMinutes = 90,
+                            DurationMinutes = 0,
                             Name = "Maquillaje Profesional",
                             Price = 2500m
                         });

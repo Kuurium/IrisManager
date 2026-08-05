@@ -9,5 +9,6 @@ namespace IrisManager.Application.Contract
         Task<AppointmentDto> CreateAppointmentAsync(AppointmentCreateDto dto);
         Task<bool> UpdateAppointmentStatusAsync(int id, AppointmentUpdateStatusDto dto);
         Task<bool> DeleteAppointmentAsync(int id);
+        Task UpdateAppointmentAsync(int id, AppointmentUpdateDto updateDto);
     }
 }

@@ -1,4 +1,8 @@
-<form [formGroup]="customerForm" (ngSubmit)="onSubmit()" novalidate>
+<div class="mb-4">
+  <a class="btn btn-outline-secondary" routerLink="/clientes">
+    &larr; Cancelar y Volver
+  </a>
+</div><form [formGroup]="customerForm" (ngSubmit)="onSubmit()" novalidate>
   
   <div class="mb-3">
     <label for="name" class="form-label">Nombre del Cliente</label>

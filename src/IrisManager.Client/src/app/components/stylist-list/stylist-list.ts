@@ -4,11 +4,12 @@ import { StylistService } from '../../core/services/stylist.service';
 import { Stylist } from '../../core/models/stylist';
 import Swal from 'sweetalert2';
 import { StylistFormComponent } from '../stylist-form/stylist-form';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-stylist-list',
   standalone: true,
-  imports: [CommonModule, StylistFormComponent],
+  imports: [CommonModule, StylistFormComponent,RouterLink],
   templateUrl: './stylist-list.html',
   styleUrl: './stylist-list.scss'
 })
