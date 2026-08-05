@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
 
   customers: Customer[] = []; 
 
-  newCustomer: Customer = { name: '', email: '', phone: '' };
+  newCustomer: Customer = { name: '', email: '', phone: '', isActive: true };
   editingCustomerId: number | null = null;
   searchTerm: string = '';
   isLoading: boolean = false;
@@ -97,6 +97,27 @@ export class AppComponent implements OnInit {
       },
       error: (error) => {
         console.error(' Error al conectar con la API de estilistas:', error);
+      }
+    });
+  }
+
+  onDeleteCustomer(id: number) {
+    this.customerService.deleteCustomer(id).subscribe({
+      next: () => {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Cliente desactivado correctamente',
+          showConfirmButton: false,
+          timer: 3000
+        });
+        
+        this.loadCustomers(); 
+      },
+      error: (err) => {
+        console.error('Error al desactivar el cliente', err);
+        Swal.fire('Error', 'No se pudo desactivar el cliente.', 'error');
       }
     });
   }
@@ -181,7 +202,7 @@ export class AppComponent implements OnInit {
   }
 
   resetForm() {
-    this.newCustomer = { name: '', email: '', phone: '' };
+    this.newCustomer = { name: '', email: '', phone: '', isActive: true };
     this.editingCustomerId = null;
   }
 }

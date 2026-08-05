@@ -2,6 +2,7 @@ import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../core/services/customer.service';
 import { Customer } from '../../core/models/customer';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer-list',
