@@ -15,6 +15,29 @@ namespace IrisManager.API.Controllers
             _appointmentService = appointmentService;
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAppointment(int id, [FromBody] AppointmentUpdateDto updateDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _appointmentService.UpdateAppointmentAsync(id, updateDto);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = "The requested appointment does not exist." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal error updating the appointment: " + ex.Message });
+            }
+        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments()
         {
@@ -81,7 +104,7 @@ namespace IrisManager.API.Controllers
                 return NotFound(new { message = "Appointment not found." });
             }
 
-            return NotFound();
+            return NoContent();
         }
     }
 }

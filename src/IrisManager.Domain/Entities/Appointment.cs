@@ -27,5 +27,7 @@ namespace IrisManager.Domain.Entities
 
         [Required]
         public string Status { get; set; } = "Scheduled";
+        public string? PaymentMethod { get; set; }
+        public string? Notes { get; set; }
     }
 }

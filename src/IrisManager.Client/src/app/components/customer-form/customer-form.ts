@@ -1,25 +1,26 @@
-import { Component, inject, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CustomerService } from '../../core/services/customer.service';
-import { Customer } from '../../core/models/customer';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './customer-form.html',
   styleUrl: './customer-form.scss'
 })
-export class CustomerFormComponent implements OnChanges {
-  @Input() customer: Customer | null = null;
-  @Output() onSave = new EventEmitter<void>();
+export class CustomerFormComponent implements OnInit {
   
   private customerService = inject(CustomerService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   customerForm: FormGroup;
+  clienteId: number | null = null;
 
   constructor() {
     this.customerForm = this.fb.group({
@@ -30,10 +31,27 @@ export class CustomerFormComponent implements OnChanges {
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['customer'] && changes['customer'].currentValue) {
-      this.customerForm.patchValue(changes['customer'].currentValue);
-    }
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.clienteId = Number(id);
+        this.cargarCliente(this.clienteId);
+      }
+    });
+  }
+
+  cargarCliente(id: number) {
+    this.customerService.getCustomerById(id).subscribe({
+      next: (cliente: any) => {
+        this.customerForm.patchValue(cliente);
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudo cargar la información del cliente.', 'error').then(() => {
+          this.router.navigate(['/clientes']);
+        });
+      }
+    });
   }
 
   onSubmit() {
@@ -49,25 +67,24 @@ export class CustomerFormComponent implements OnChanges {
 
     const formValue = this.customerForm.value;
 
-    if (formValue.id && formValue.id > 0) {
-      this.customerService.updateCustomer(formValue.id, formValue).subscribe({
+    if (this.clienteId && this.clienteId > 0) {
+      this.customerService.updateCustomer(this.clienteId, formValue).subscribe({
         next: () => {
-          Swal.fire('¡Actualizado!', 'Cliente actualizado correctamente.', 'success');
-          this.onSave.emit();
-          this.customerForm.reset({ id: 0, name: '', email: '', phone: '' });
+          Swal.fire('¡Actualizado!', 'Cliente actualizado correctamente.', 'success').then(() => {
+            this.router.navigate(['/clientes']);
+          });
         },
         error: (err: any) => {
           Swal.fire('Error', err.message || 'Hubo un problema al actualizar.', 'error');
         }
       });
     } 
-    // 4. Lógica de Creación
     else {
       this.customerService.createCustomer(formValue).subscribe({
         next: () => {
-          Swal.fire('¡Guardado!', 'Cliente guardado correctamente.', 'success');
-          this.onSave.emit();
-          this.customerForm.reset({ id: 0, name: '', email: '', phone: '' });
+          Swal.fire('¡Guardado!', 'Cliente guardado correctamente.', 'success').then(() => {
+            this.router.navigate(['/clientes']);
+          });
         },
         error: (err: any) => {
           Swal.fire('Error', err.message || 'Hubo un problema al crear.', 'error');

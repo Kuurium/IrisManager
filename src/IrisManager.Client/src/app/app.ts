@@ -1,17 +1,15 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CustomerService } from './core/services/customer.service';
-import { CustomerListComponent } from './components/customer-list/customer-list';
-import { CustomerFormComponent } from './components/customer-form/customer-form';
 import { StylistService } from './core/services/stylist.service';
 import { Customer } from './core/models/customer';
-import { StylistListComponent } from './components/stylist-list/stylist-list';
+import { RouterOutlet,RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule, CustomerListComponent, CustomerFormComponent, StylistListComponent],
+  imports: [FormsModule, RouterOutlet,RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StylistService } from '../../core/services/stylist.service';
 import { Stylist, StylistCreateDTO } from '../../core/models/stylist';
+import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 
 @Component({

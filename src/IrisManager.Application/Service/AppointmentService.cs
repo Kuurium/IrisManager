@@ -2,6 +2,7 @@
 using IrisManager.Application.Dtos;
 using IrisManager.Domain.Entities;
 using IrisManager.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace IrisManager.Application.Service
 {
@@ -19,16 +20,23 @@ namespace IrisManager.Application.Service
         public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync()
         {
             var appointments = await _appointmentRepository.GetAllAsync();
-            return appointments.Select(a => new AppointmentDto
+
+            var inMemoryAppointments = appointments.ToList();
+
+            return inMemoryAppointments.Select(a => new AppointmentDto
             {
                 Id = a.Id,
                 CustomerId = a.CustomerId,
+                CustomerName = a.Customer?.Name ?? "N/A",
                 StylistId = a.StylistId,
+                StylistName = a.Stylist?.Name ?? "N/A",
                 ServiceId = a.ServiceId,
+                ServiceName = a.Service?.Name ?? "N/A",
                 StartTime = a.StartTime,
                 EndTime = a.EndTime,
-                Status = a.Status
-            });
+                Status = a.Status,
+                PaymentMethod = a.PaymentMethod
+            }).ToList();
         }
 
         public async Task<AppointmentDto?> GetAppointmentByIdAsync(int id)
@@ -40,8 +48,11 @@ namespace IrisManager.Application.Service
             {
                 Id = appointment.Id,
                 CustomerId = appointment.CustomerId,
+                CustomerName = appointment.Customer?.Name ?? "N/A",
                 StylistId = appointment.StylistId,
+                StylistName = appointment.Stylist?.Name ?? "N/A",
                 ServiceId = appointment.ServiceId,
+                ServiceName = appointment.Service?.Name ?? "N/A",
                 StartTime = appointment.StartTime,
                 EndTime = appointment.EndTime,
                 Status = appointment.Status
@@ -90,6 +101,31 @@ namespace IrisManager.Application.Service
                 EndTime = appointment.EndTime,
                 Status = appointment.Status
             };
+        }
+
+        public async Task UpdateAppointmentAsync(int id, AppointmentUpdateDto updateDto)
+        {
+            var appointment = await _appointmentRepository.GetByIdAsync(id);
+            if (appointment == null)
+            {
+                throw new KeyNotFoundException("The requested appointment does not exist.");
+            }
+
+            var service = await _serviceRepository.GetByIdAsync(updateDto.ServiceId);
+            if (service == null)
+            {
+                throw new ArgumentException("Service not found.");
+            }
+
+            if (DateTime.TryParse($"{updateDto.Date} {updateDto.Time}", out DateTime parsedStartTime))
+            {
+                appointment.StartTime = parsedStartTime;
+                appointment.EndTime = parsedStartTime.AddMinutes(service.DurationMinutes);
+            }
+            else
+            {
+                throw new FormatException("Invalid date or time format.");
+            }
         }
 
         public async Task<bool> UpdateAppointmentStatusAsync(int id, AppointmentUpdateStatusDto dto)

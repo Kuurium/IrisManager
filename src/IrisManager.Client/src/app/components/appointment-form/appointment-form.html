@@ -1,0 +1,96 @@
+<div class="container-fluid mt-4">
+
+  <div class="d-flex align-items-center mb-4">
+    <button class="btn btn-outline-secondary me-3" routerLink="/citas">
+      &larr; Volver
+    </button>
+    <h2 class="mb-0">{{ isEditMode ? 'Editar Cita' : 'Nueva Cita' }}</h2>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+
+      <form #appointmentForm="ngForm" (ngSubmit)="save()">
+        <div class="row">
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Cliente <span class="text-danger">*</span></label>
+            <select class="form-select" name="customerId" [(ngModel)]="formData.customerId" required>
+              <option [ngValue]="null" disabled selected hidden>Selecciona un cliente</option>
+              <option *ngFor="let customer of customers" [ngValue]="customer.id">
+                {{ customer.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Estilista <span class="text-danger">*</span></label>
+            <select class="form-select" name="stylistId" [(ngModel)]="formData.stylistId" required>
+              <option [ngValue]="null" disabled selected hidden>Selecciona un estilista</option>
+              <option *ngFor="let stylist of stylists" [ngValue]="stylist.id">
+                {{ stylist.name }} - {{ stylist.specialty }}
+              </option>
+            </select>
+          </div>
+
+<div class="col-md-12 mb-3">
+  <label class="form-label fw-semibold">Servicio <span class="text-danger">*</span></label>
+  <select class="form-select" name="serviceId" [(ngModel)]="formData.serviceId" required>
+    <option [ngValue]="null" disabled selected hidden>Selecciona un servicio</option>
+    <option *ngFor="let srv of services" [ngValue]="srv.id">
+      {{ srv.name }} - ${{ srv.price }} ({{ formatDuration(srv.durationMinutes) }})
+    </option>
+  </select>
+</div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" name="date" [(ngModel)]="formData.date" required>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Hora <span class="text-danger">*</span></label>
+            <input type="time" class="form-control" name="time" [(ngModel)]="formData.time" required>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Estado de la Cita</label>
+            <select class="form-select" name="status" [(ngModel)]="formData.status">
+              <option value="Pendiente">Pendiente</option>
+              <option value="Confirmada">Confirmada</option>
+              <option value="Completada">Completada</option>
+              <option value="Cancelada">Cancelada</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+  <label class="form-label fw-semibold">Método de Pago</label>
+  <select class="form-select" [(ngModel)]="formData.paymentMethod" name="paymentMethod">
+    <option value="" disabled>Seleccione un método...</option>
+    <option value="Cash">Efectivo</option>
+    <option value="CreditCard">Tarjeta de Crédito</option>
+    <option value="Transfer">Transferencia</option>
+  </select>
+</div>
+
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-semibold">Notas u Observaciones</label>
+            <textarea class="form-control" name="notes" [(ngModel)]="formData.notes" rows="3" 
+                      placeholder="Detalles sobre el cabello del cliente, preferencias especiales, etc. (Opcional)"></textarea>
+          </div>
+        </div>
+
+        <hr class="mt-4 mb-4">
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-light border me-2" routerLink="/citas">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary px-4" [disabled]="appointmentForm.invalid">
+            {{ isEditMode ? 'Actualizar Cita' : 'Guardar Cita' }}
+          </button>
+        </div>
+      </form>
+      
+    </div>
+  </div>
+</div>

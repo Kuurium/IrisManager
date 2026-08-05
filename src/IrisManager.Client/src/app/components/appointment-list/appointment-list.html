@@ -1,0 +1,75 @@
+<div class="container-fluid mt-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-outline-secondary me-3" routerLink="/">
+        &larr; Volver
+      </button>
+      <h2 class="d-inline-block mb-0">Gestión de Citas</h2>
+    </div>
+    <button class="btn btn-primary" routerLink="/citas/nueva">
+      + Nueva Cita
+    </button>
+  </div>
+
+  <div class="table-responsive shadow-sm rounded">
+    <table class="table table-hover table-striped align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Estilista</th>
+          <th>Servicio</th>
+          <th>Fecha y Hora</th>
+          <th>Estado</th>
+          <th>Pago</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+<tbody>
+        <tr *ngFor="let apt of appointments">
+          <td class="fw-bold">{{ apt.id }}</td>
+          
+          <td>{{ apt.customerName }}</td>
+          <td>{{ apt.stylistName }}</td>
+          <td>{{ apt.serviceName }}</td>
+          
+          <td>
+            <div class="fw-semibold">{{ apt.startTime | date:'mediumDate' }}</div>
+            <div class="text-muted small">{{ apt.startTime | date:'shortTime' }}</div>
+          </td>
+<td>
+  <span class="badge"
+        [ngClass]="{
+          'text-bg-primary': apt.status === 'Scheduled',
+          'text-bg-warning': apt.status === 'Rescheduled',
+          'text-bg-success': apt.status === 'Completed',
+          'text-bg-danger': apt.status === 'Cancelled'
+        }">
+    {{ traducirEstado(apt.status) }}
+  </span>
+</td>
+
+<td>
+  <span class="badge bg-info text-dark">
+    {{ traducirPago(apt.paymentMethod) }}
+  </span>
+</td>
+
+          <td class="text-center">
+            <button class="btn btn-sm btn-outline-warning me-2" [routerLink]="['/citas/editar', apt.id]">
+              Editar
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteAppointment(apt.id)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert alert-info text-center mt-3" *ngIf="appointments.length === 0">
+    No hay citas registradas en el sistema.
+  </div>
+</div>

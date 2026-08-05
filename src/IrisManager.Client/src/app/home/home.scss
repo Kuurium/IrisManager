@@ -1,0 +1,60 @@
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.logo-container {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.logo-text {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #333;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 450px;
+}
+
+.menu-card {
+  background-color: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.menu-card h2 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.menu-card p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+
+.menu-card:hover {
+  background-color: #f8f9fa;
+  border-color: #b0bec5;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}

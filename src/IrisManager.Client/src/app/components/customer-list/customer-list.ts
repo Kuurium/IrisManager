@@ -1,44 +1,60 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { CustomerService } from '../../core/services/customer.service';
 import { Customer } from '../../core/models/customer';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer-list',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './customer-list.html',
   styleUrl: './customer-list.scss'
 })
-export class CustomerListComponent {
-  @Input() customers: any[] = []; 
-  @Input() sortColumn: string = '';
-  @Input() sortAscending: boolean = true;
-  
-@Output() onEdit = new EventEmitter<Customer>();
-  @Output() onDelete = new EventEmitter<number>();
-  @Output() onSort = new EventEmitter<string>();
+export class CustomerListComponent implements OnInit {
+  private customerService = inject(CustomerService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
-  edit(customer: Customer) { this.onEdit.emit(customer); }
-  delete(id: number) { this.onDelete.emit(id); }
+  customers: Customer[] = [];
+  sortColumn: string = '';
+  sortAscending: boolean = true;
 
-  sortBy(column: string) {
-    this.onSort.emit(column);
+  ngOnInit() {
+    this.cargarClientes();
   }
 
-    confirmDelete(customer: Customer) {
-    Swal.fire({
-      title: '¿Estás seguro?',
-      text: `Estás a punto de desactivar al cliente ${customer.name}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, desactivar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.onDelete.emit(customer.id);
+  cargarClientes() {
+    this.customerService.getCustomers().subscribe({
+      next: (data: Customer[]) => {
+        this.customers = data;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error al cargar clientes:', err);
       }
     });
   }
+
+  edit(customer: Customer) {
+    this.router.navigate(['/clientes/editar', customer.id]);
+  }
+
+  delete(id: number) {
+    if(confirm('¿Estás seguro de eliminar este cliente?')) {
+      this.customerService.deleteCustomer(id).subscribe(() => {
+        this.cargarClientes();
+      });
+    }
+  }
+
+  sortBy(column: string) {
+    if (this.sortColumn === column) {
+      this.sortAscending = !this.sortAscending;
+    } else {
+      this.sortColumn = column;
+      this.sortAscending = true;
+    }
   
+  }
 }

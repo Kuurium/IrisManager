@@ -1,6 +1,5 @@
 ﻿using IrisManager.Application.Dtos;
 using IrisManager.Application.Contract;
-using IrisManager.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IrisManager.API.Controllers

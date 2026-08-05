@@ -15,5 +15,6 @@ namespace IrisManager.Application.Dtos
 
         [Required]
         public DateTime StartTime { get; set; }
+        public string? PaymentMethod { get; set; }
     }
 }
