@@ -22,6 +22,13 @@ namespace IrisManager.API.Controllers
             return Ok(stylists);
         }
 
+        [HttpGet("by-service/{serviceId}")]
+        public async Task<ActionResult<IEnumerable<StylistDto>>> GetStylistsByService(int serviceId)
+        {
+            var stylists = await _stylistService.GetStylistsByServiceAsync(serviceId);
+            return Ok(stylists);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<StylistDto>> GetStylist(int id)
         {
@@ -45,14 +52,12 @@ namespace IrisManager.API.Controllers
             return NoContent();
         }
 
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStylist(int id)
         {
             var deleted = await _stylistService.DeleteStylistAsync(id);
             if (!deleted) return NotFound(new { message = "Stylist not found." });
             return NoContent();
-
         }
     }
 }

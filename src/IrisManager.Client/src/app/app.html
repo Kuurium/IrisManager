@@ -1,17 +1,16 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-  <div class="container">
-    <a class="navbar-brand" routerLink="/"><strong>IrisManager</strong></a>
-    
-    <div class="collapse navbar-collapse">
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" routerLink="/clientes" routerLinkActive="active">Clientes</a>
-        <a class="nav-link" routerLink="/estilistas" routerLinkActive="active">Estilistas</a>
-        <a class="nav-link" routerLink="/">Citas</a>
-      </div>
-    </div>
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a routerLink="/" class="logo text-decoration-none">IrisManager</a>
   </div>
+
+  @if (router.url !== '/') {
+    <div class="navbar-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+      <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
+      <a routerLink="/estilistas" routerLinkActive="active">Estilistas</a>
+      <a routerLink="/citas" routerLinkActive="active">Citas</a>
+    </div>
+  }
 </nav>
 
-<div class="container">
-  <router-outlet></router-outlet>
-</div>
+<router-outlet></router-outlet>

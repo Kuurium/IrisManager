@@ -1,36 +1,36 @@
-import { Customer } from './customer';
-import { Stylist } from './stylist';
-
 export interface Appointment {
   id: number;
   customerId: number;
-  customerName?: string;
+  customerName: string;
   stylistId: number;
-  stylistName?: string;
+  stylistName: string;
   serviceId: number;
-  serviceName?: string;
-  service: string;
-  date: string; // Formato YYYY-MM-DD
-  time: string; // Formato HH:mm
-status: 'Scheduled' | 'Rescheduled' | 'Completed' | 'Cancelled';
-  paymentMethod: 'Efectivo' | 'Tarjeta' | 'Transferencia' | 'Pendiente';
-  notes?: string;
-  startTime: Date;
-endTime: Date;
-
-  customer?: Customer;
-  stylist?: Stylist;
+  serviceName: string;
+  startTime: string; // ISO string de la fecha/hora
+  endTime: string;
+  status: 'Scheduled' | 'Completed' | 'Cancelled' | string;
+  paymentMethod?: string;
 }
 
 export interface AppointmentCreateDTO {
-  customerId: number | null;
-  stylistId: number | null;
-  serviceId: number | null;
-  service: string;
-  date: string;
-  time: string;
-  status: 'Scheduled' | 'Rescheduled' | 'Completed' | 'Cancelled';
-  paymentMethod: 'Efectivo' | 'Tarjeta' | 'Transferencia' | 'Pendiente';
-  notes: string;
-  startTime?: string;
+  customerId: number;
+  stylistId: number;
+  serviceId: number;
+  startTime: string;
+  status?: string;
+  paymentMethod?: string;
+}
+
+export interface AppointmentUpdateDTO {
+  id: number;
+  customerId: number;
+  stylistId: number;
+  serviceId: number;
+  startTime: string;
+  status?: string;
+  paymentMethod?: string;
+}
+
+export interface AppointmentUpdateStatusDTO {
+  status: string;
 }

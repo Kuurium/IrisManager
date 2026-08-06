@@ -1,25 +1,42 @@
-<div class="dashboard-container">
-  
-  <div class="logo-container">
-    <h1 class="logo-text">IrisManager</h1>
+<main class="home-container">
+  <div class="hero-section">
+    <img src="logo.png" alt="IrisManager Logo" class="home-logo">
+    <h1 class="brand-title">IrisManager</h1>
+    <p class="brand-subtitle">Gestión integral de clientes, personal y citas</p>
   </div>
 
-  <div class="menu-container">
-    
-    <button class="menu-card" routerLink="/clientes">
-      <h2>Clientes</h2>
+  <div class="cards-grid">
+    <a routerLink="/clientes" class="nav-card">
+      <div class="card-icon">👥</div>
+      <h3>Clientes</h3>
       <p>Registro, edición y gestión de clientes</p>
-    </button>
+    </a>
 
-    <button class="menu-card" routerLink="/estilistas">
-      <h2>Estilistas</h2>
+    <a routerLink="/estilistas" class="nav-card">
+      <div class="card-icon">✂️</div>
+      <h3>Estilistas</h3>
       <p>Administración del personal</p>
-    </button>
+    </a>
 
-    <button class="menu-card" routerLink="/citas">
-      <h2>Citas</h2>
+    <a routerLink="/citas" class="nav-card">
+      <div class="card-icon">📅</div>
+      <h3>Citas</h3>
       <p>Gestión de horarios y reservas</p>
-    </button>
-
+    </a>
   </div>
-</div>
+
+  <footer class="home-footer">
+    <div class="footer-card">
+      <h4>Horario de Atención</h4>
+      <p>Lunes a Viernes: 8:00 AM - 7:00 PM</p>
+      <p>Sábados: 8:00 AM - 8:00 PM</p>
+      <p>Domingos: 9:00 AM - 2:00 PM</p>
+    </div>
+
+    <div class="footer-card student-info">
+      <h4>Desarrollador</h4>
+      <p><strong>Nombre:</strong> Joseph Alexander Torres Jones</p>
+      <p><strong>Matrícula:</strong> 2025-0991</p>
+    </div>
+  </footer>
+</main>

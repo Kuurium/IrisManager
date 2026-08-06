@@ -3,19 +3,20 @@ import { FormsModule } from '@angular/forms';
 import { CustomerService } from './core/services/customer.service';
 import { StylistService } from './core/services/stylist.service';
 import { Customer } from './core/models/customer';
-import { RouterOutlet,RouterLink } from '@angular/router';
+import { RouterOutlet,RouterLink,RouterLinkActive,Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule, RouterOutlet,RouterLink],
+  imports: [FormsModule, RouterOutlet,RouterLink,RouterLinkActive],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 
 export class AppComponent implements OnInit {
   title = 'IrisManager.Client';
+public router = inject(Router);
 
   private customerService = inject(CustomerService);
   private cdr = inject(ChangeDetectorRef);

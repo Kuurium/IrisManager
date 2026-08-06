@@ -1,1 +1,96 @@
-@import "../node_modules/bootstrap/scss/bootstrap";
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+:root {
+  --bg-main: #0f0c1b;
+  --bg-card: #1a162b;
+  --bg-navbar: #120e24;
+  --primary-purple: #8b5cf6;
+  --primary-purple-hover: #7c3aed;
+  --purple-glow: rgba(139, 92, 246, 0.25);
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --border-color: #2e264d;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.brand-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.4));
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.bg-dark-card { background-color: var(--bg-card) !important; }
+.border-purple-subtle { border-color: var(--border-color) !important; }
+.text-purple-light { color: #c084fc !important; }
+
+.btn-primary {
+  background-color: var(--primary-purple) !important;
+  border-color: var(--primary-purple) !important;
+  color: #fff !important;
+  &:hover {
+    background-color: var(--primary-purple-hover) !important;
+    border-color: var(--primary-purple-hover) !important;
+  }
+}
+
+.custom-dark-table {
+  --bs-table-bg: var(--bg-card);
+  --bs-table-color: var(--text-main);
+  --bs-table-hover-bg: rgba(139, 92, 246, 0.1);
+  --bs-table-hover-color: var(--text-main);
+  border-color: var(--border-color) !important;
+
+  thead th {
+    background-color: #120e24 !important;
+    color: #9ca3af !important;
+    border-bottom: 1px solid var(--border-color) !important;
+  }
+}
+:root {
+  --bg-main: #0f0c1b;
+  --bg-card: #1a162b;
+  --bg-navbar: #120e24;
+  --primary-purple: #8b5cf6;
+  --primary-purple-hover: #7c3aed;
+  --purple-glow: rgba(139, 92, 246, 0.25);
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --border-color: #2e264d;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.bg-dark-card { background-color: var(--bg-card) !important; }
+.border-purple-subtle { border-color: var(--border-color) !important; }
+.text-purple-light { color: #c084fc !important; }
+
+.modal-body {
+  max-height: 80vh;
+  overflow-y: auto;
+}

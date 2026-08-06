@@ -5,16 +5,16 @@
       <button class="btn btn-outline-secondary me-3" routerLink="/">
         &larr; Volver
       </button>
-      <h2 class="d-inline-block mb-0">Gestión de Citas</h2>
+      <h2 class="d-inline-block mb-0 text-white">Gestión de Citas</h2>
     </div>
     <button class="btn btn-primary" routerLink="/citas/nueva">
       + Nueva Cita
     </button>
   </div>
 
-  <div class="table-responsive shadow-sm rounded">
-    <table class="table table-hover table-striped align-middle mb-0">
-      <thead class="table-dark">
+  <div class="table-responsive shadow-lg rounded border border-purple-subtle">
+    <table class="table table-dark table-hover align-middle mb-0 custom-dark-table">
+      <thead>
         <tr>
           <th>ID</th>
           <th>Cliente</th>
@@ -26,35 +26,36 @@
           <th class="text-center">Acciones</th>
         </tr>
       </thead>
-<tbody>
+      <tbody>
         <tr *ngFor="let apt of appointments">
-          <td class="fw-bold">{{ apt.id }}</td>
+          <td class="fw-bold text-purple-light">{{ apt.id }}</td>
           
-          <td>{{ apt.customerName }}</td>
-          <td>{{ apt.stylistName }}</td>
-          <td>{{ apt.serviceName }}</td>
+          <td class="text-white">{{ apt.customerName }}</td>
+          <td class="text-white">{{ apt.stylistName }}</td>
+          <td class="text-white">{{ apt.serviceName }}</td>
           
           <td>
-            <div class="fw-semibold">{{ apt.startTime | date:'mediumDate' }}</div>
-            <div class="text-muted small">{{ apt.startTime | date:'shortTime' }}</div>
+            <div class="fw-semibold text-white">{{ apt.startTime | date:'mediumDate' }}</div>
+            <!-- Se reemplaza 'text-muted' por 'text-white-50' para alto contraste en fondo oscuro -->
+            <div class="text-white-50 small">{{ apt.startTime | date:'shortTime' }}</div>
           </td>
-<td>
-  <span class="badge"
-        [ngClass]="{
-          'text-bg-primary': apt.status === 'Scheduled',
-          'text-bg-warning': apt.status === 'Rescheduled',
-          'text-bg-success': apt.status === 'Completed',
-          'text-bg-danger': apt.status === 'Cancelled'
-        }">
-    {{ traducirEstado(apt.status) }}
-  </span>
-</td>
+          <td>
+            <span class="badge"
+              [ngClass]="{
+                'bg-primary': apt.status === 'Scheduled',
+                'bg-warning text-dark': apt.status === 'Rescheduled',
+                'bg-success': apt.status === 'Completed',
+                'bg-danger': apt.status === 'Cancelled'
+              }">
+              {{ traducirEstado(apt.status) }}
+            </span>
+          </td>
 
-<td>
-  <span class="badge bg-info text-dark">
-    {{ traducirPago(apt.paymentMethod) }}
-  </span>
-</td>
+          <td>
+            <span class="badge bg-purple-subtle text-purple-light border border-purple">
+              {{ traducirPago(apt.paymentMethod) }}
+            </span>
+          </td>
 
           <td class="text-center">
             <button class="btn btn-sm btn-outline-warning me-2" [routerLink]="['/citas/editar', apt.id]">
@@ -69,7 +70,7 @@
     </table>
   </div>
 
-  <div class="alert alert-info text-center mt-3" *ngIf="appointments.length === 0">
+  <div class="alert alert-dark text-center border-purple-subtle mt-3 text-purple-light" *ngIf="appointments.length === 0">
     No hay citas registradas en el sistema.
   </div>
 </div>

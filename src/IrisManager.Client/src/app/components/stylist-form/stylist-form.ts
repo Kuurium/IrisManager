@@ -1,9 +1,9 @@
-import { Component, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StylistService } from '../../core/services/stylist.service';
-import { Stylist, StylistCreateDTO } from '../../core/models/stylist';
-import { RouterLink } from '@angular/router';
+import { ServiceService } from '../../core/services/service.service';
+import { Stylist, StylistCreateDTO, StylistUpdateDTO } from '../../core/models/stylist';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,33 +13,89 @@ import Swal from 'sweetalert2';
   templateUrl: './stylist-form.html',
   styleUrl: './stylist-form.scss'
 })
-export class StylistFormComponent implements OnChanges { 
+export class StylistFormComponent implements OnInit, OnChanges { 
 
   @Input() stylistToEdit: Stylist | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
   private stylistService = inject(StylistService);
+  private serviceService = inject(ServiceService);
   private cdr = inject(ChangeDetectorRef);
 
-  formData: StylistCreateDTO = { name: '', email: '', phone: '', specialty: '', isActive: true };
+  availableServices: any[] = [];
+  selectedServiceIds: number[] = [];
+
+  formData: StylistCreateDTO = { 
+    name: '', 
+    email: '', 
+    phone: '', 
+    isActive: true,
+    serviceIds: []
+  };
+
+  ngOnInit(): void {
+    this.loadServices();
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['stylistToEdit'] && this.stylistToEdit) {
-      this.formData = { ...this.stylistToEdit, isActive: (this.stylistToEdit as any).isActive ?? true };
+      this.formData = {
+        name: this.stylistToEdit.name,
+        email: this.stylistToEdit.email,
+        phone: this.stylistToEdit.phone,
+        isActive: this.stylistToEdit.isActive ?? true,
+        serviceIds: this.stylistToEdit.serviceIds ? [...this.stylistToEdit.serviceIds] : []
+      };
+      this.selectedServiceIds = this.stylistToEdit.serviceIds ? [...this.stylistToEdit.serviceIds] : [];
     } else {
       this.resetForm();
     }
   }
 
+  loadServices(): void {
+    this.serviceService.getServices().subscribe({
+      next: (services) => {
+        this.availableServices = services;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error al cargar servicios:', err)
+    });
+  }
+
+  isServiceSelected(serviceId: number): boolean {
+    return this.selectedServiceIds.includes(serviceId);
+  }
+
+  onServiceToggle(serviceId: number, event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+
+    if (isChecked) {
+      if (!this.selectedServiceIds.includes(serviceId)) {
+        this.selectedServiceIds.push(serviceId);
+      }
+    } else {
+      this.selectedServiceIds = this.selectedServiceIds.filter(id => id !== serviceId);
+    }
+  }
+
   save() {
-    if (!this.formData.name || !this.formData.email || !this.formData.phone || !this.formData.specialty) {
-      Swal.fire('Error', 'Todos los campos son obligatorios', 'error');
+    if (!this.formData.name || !this.formData.email || !this.formData.phone || this.selectedServiceIds.length === 0) {
+      Swal.fire('Error', 'Todos los campos y al menos un servicio son obligatorios', 'error');
       return;
     }
 
     if (this.stylistToEdit && this.stylistToEdit.id) {
-      this.stylistService.updateStylist(this.stylistToEdit.id, { id: this.stylistToEdit.id, ...this.formData } as any).subscribe({
+      const updateDto: StylistUpdateDTO = {
+        id: this.stylistToEdit.id,
+        name: this.formData.name,
+        email: this.formData.email,
+        phone: this.formData.phone,
+        isActive: this.formData.isActive,
+        serviceIds: this.selectedServiceIds
+      };
+
+      this.stylistService.updateStylist(this.stylistToEdit.id, updateDto).subscribe({
         next: () => {
           Swal.fire('¡Actualizado!', 'Estilista actualizado correctamente.', 'success');
           this.saved.emit();
@@ -50,7 +106,15 @@ export class StylistFormComponent implements OnChanges {
         }
       });
     } else {
-      this.stylistService.createStylist(this.formData).subscribe({
+      const createDto: StylistCreateDTO = {
+        name: this.formData.name,
+        email: this.formData.email,
+        phone: this.formData.phone,
+        isActive: this.formData.isActive,
+        serviceIds: this.selectedServiceIds
+      };
+
+      this.stylistService.createStylist(createDto).subscribe({
         next: () => {
           Swal.fire('¡Guardado!', 'Estilista registrado correctamente.', 'success');
           this.saved.emit();
@@ -68,14 +132,15 @@ export class StylistFormComponent implements OnChanges {
   }
 
   onCancel() {
-  this.close.emit();
-}
+    this.close.emit();
+  }
 
   resetForm() {
-  this.formData = { name: '', email: '', phone: '', specialty: '', isActive: true };
-}
+    this.formData = { name: '', email: '', phone: '', isActive: true, serviceIds: [] };
+    this.selectedServiceIds = [];
+  }
 
   onSubmit() {
-  this.save();
-}
+    this.save();
+  }
 }

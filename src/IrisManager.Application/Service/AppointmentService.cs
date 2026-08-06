@@ -2,7 +2,6 @@
 using IrisManager.Application.Dtos;
 using IrisManager.Domain.Entities;
 using IrisManager.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace IrisManager.Application.Service
 {
@@ -20,7 +19,6 @@ namespace IrisManager.Application.Service
         public async Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync()
         {
             var appointments = await _appointmentRepository.GetAllAsync();
-
             var inMemoryAppointments = appointments.ToList();
 
             return inMemoryAppointments.Select(a => new AppointmentDto
@@ -55,7 +53,8 @@ namespace IrisManager.Application.Service
                 ServiceName = appointment.Service?.Name ?? "N/A",
                 StartTime = appointment.StartTime,
                 EndTime = appointment.EndTime,
-                Status = appointment.Status
+                Status = appointment.Status,
+                PaymentMethod = appointment.PaymentMethod
             };
         }
 
@@ -66,17 +65,8 @@ namespace IrisManager.Application.Service
 
             var calculatedEndTime = dto.StartTime.AddMinutes(service.DurationMinutes);
 
-            var allAppointments = await _appointmentRepository.GetAllAsync();
-            var hasConflict = allAppointments.Any(a =>
-            a.StylistId == dto.StylistId &&
-            a.Status != "Cancelled" &&
-            dto.StartTime < a.EndTime &&
-            calculatedEndTime > a.StartTime);
-
-            if (hasConflict)
-            {
-                throw new InvalidOperationException("The stylist is already booked for this time slot");
-            }
+            // Validate conflict before creating
+            await ValidateStylistAvailabilityAsync(dto.StylistId, dto.StartTime, calculatedEndTime);
 
             var appointment = new Appointment
             {
@@ -84,8 +74,9 @@ namespace IrisManager.Application.Service
                 StylistId = dto.StylistId,
                 ServiceId = dto.ServiceId,
                 StartTime = dto.StartTime,
+                Status = string.IsNullOrWhiteSpace(dto.Status) ? "Scheduled" : dto.Status,
                 EndTime = calculatedEndTime,
-                Status = "Scheduled"
+                PaymentMethod = dto.PaymentMethod
             };
 
             await _appointmentRepository.AddAsync(appointment);
@@ -99,7 +90,8 @@ namespace IrisManager.Application.Service
                 ServiceId = appointment.ServiceId,
                 StartTime = appointment.StartTime,
                 EndTime = appointment.EndTime,
-                Status = appointment.Status
+                Status = appointment.Status,
+                PaymentMethod = appointment.PaymentMethod
             };
         }
 
@@ -117,15 +109,27 @@ namespace IrisManager.Application.Service
                 throw new ArgumentException("Service not found.");
             }
 
-            if (DateTime.TryParse($"{updateDto.Date} {updateDto.Time}", out DateTime parsedStartTime))
-            {
-                appointment.StartTime = parsedStartTime;
-                appointment.EndTime = parsedStartTime.AddMinutes(service.DurationMinutes);
-            }
-            else
+            DateTime newStartTime = updateDto.StartTime;
+
+            if (newStartTime == default)
             {
                 throw new FormatException("Invalid date or time format.");
             }
+
+            DateTime newEndTime = newStartTime.AddMinutes(service.DurationMinutes > 0 ? service.DurationMinutes : 30);
+
+            await ValidateStylistAvailabilityAsync(updateDto.StylistId, newStartTime, newEndTime, currentAppointmentId: id);
+
+            appointment.StartTime = newStartTime;
+            appointment.EndTime = newEndTime;
+            appointment.CustomerId = updateDto.CustomerId;
+            appointment.StylistId = updateDto.StylistId;
+            appointment.ServiceId = updateDto.ServiceId;
+            appointment.Notes = updateDto.Notes;
+            appointment.Status = updateDto.Status ?? appointment.Status;
+            appointment.PaymentMethod = updateDto.PaymentMethod ?? appointment.PaymentMethod;
+
+            await _appointmentRepository.SaveChangesAsync();
         }
 
         public async Task<bool> UpdateAppointmentStatusAsync(int id, AppointmentUpdateStatusDto dto)
@@ -148,6 +152,32 @@ namespace IrisManager.Application.Service
             _appointmentRepository.Delete(appointment);
             await _appointmentRepository.SaveChangesAsync();
             return true;
+        }
+
+        private async Task ValidateStylistAvailabilityAsync(int stylistId, DateTime startTime, DateTime endTime, int? currentAppointmentId = null)
+        {
+            var allAppointments = await _appointmentRepository.GetAllAsync();
+
+            var activeStatuses = new[] { "Scheduled", "Programada", "Reprogramada", "Rescheduled", "In Process" };
+
+            var hasConflict = allAppointments.Any(a =>
+            {
+                if (currentAppointmentId.HasValue && a.Id == currentAppointmentId.Value) return false;
+                if (a.StylistId != stylistId) return false;
+                if (!activeStatuses.Contains(a.Status, StringComparer.OrdinalIgnoreCase)) return false;
+
+                DateTime existingStart = a.StartTime;
+                DateTime existingEnd = a.EndTime != default
+                    ? a.EndTime
+                    : existingStart.AddMinutes(a.Service?.DurationMinutes > 0 ? a.Service.DurationMinutes : 30);
+
+                return startTime < existingEnd && endTime > existingStart;
+            });
+
+            if (hasConflict)
+            {
+                throw new InvalidOperationException("The stylist is already booked for this time slot.");
+            }
         }
     }
 }

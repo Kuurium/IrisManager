@@ -28,9 +28,17 @@ namespace IrisManager.API.Controllers
                 await _appointmentService.UpdateAppointmentAsync(id, updateDto);
                 return NoContent();
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException ex)
             {
-                return NotFound(new { message = "The requested appointment does not exist." });
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -50,9 +58,9 @@ namespace IrisManager.API.Controllers
         {
             var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
 
-            if (appointment == null) 
+            if (appointment == null)
             {
-                return NotFound(new { message = "Appointment not found"});
+                return NotFound(new { message = "Appointment not found" });
             }
 
             return Ok(appointment);
@@ -82,14 +90,14 @@ namespace IrisManager.API.Controllers
             var validStatuses = new[] { "Scheduled", "Completed", "Cancelled" };
             if (!validStatuses.Contains(dto.Status))
             {
-                return BadRequest(new { message = "Invalid status. Must be scheduled, Completed, or Cancelled" });
+                return BadRequest(new { message = "Invalid status. Must be Scheduled, Completed, or Cancelled" });
             }
 
             var updated = await _appointmentService.UpdateAppointmentStatusAsync(id, dto);
 
             if (!updated)
             {
-                return NotFound(new { message = "appointment not found." });
+                return NotFound(new { message = "Appointment not found." });
             }
             return NoContent();
         }
