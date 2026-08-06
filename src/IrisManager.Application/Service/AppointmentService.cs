@@ -65,7 +65,8 @@ namespace IrisManager.Application.Service
 
             var calculatedEndTime = dto.StartTime.AddMinutes(service.DurationMinutes);
 
-            // Validate conflict before creating
+            // Validations
+            ValidateBusinessHours(dto.StartTime, calculatedEndTime);
             await ValidateStylistAvailabilityAsync(dto.StylistId, dto.StartTime, calculatedEndTime);
 
             var appointment = new Appointment
@@ -118,6 +119,8 @@ namespace IrisManager.Application.Service
 
             DateTime newEndTime = newStartTime.AddMinutes(service.DurationMinutes > 0 ? service.DurationMinutes : 30);
 
+            // Validations
+            ValidateBusinessHours(newStartTime, newEndTime);
             await ValidateStylistAvailabilityAsync(updateDto.StylistId, newStartTime, newEndTime, currentAppointmentId: id);
 
             appointment.StartTime = newStartTime;
@@ -152,6 +155,48 @@ namespace IrisManager.Application.Service
             _appointmentRepository.Delete(appointment);
             await _appointmentRepository.SaveChangesAsync();
             return true;
+        }
+
+        private void ValidateBusinessHours(DateTime startTime, DateTime endTime)
+        {
+            var dayOfWeek = startTime.DayOfWeek;
+            TimeSpan openTime;
+            TimeSpan closeTime;
+
+            switch (dayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                case DayOfWeek.Tuesday:
+                case DayOfWeek.Wednesday:
+                case DayOfWeek.Thursday:
+                case DayOfWeek.Friday:
+                    openTime = new TimeSpan(8, 0, 0);   // 8:00 AM
+                    closeTime = new TimeSpan(19, 0, 0); // 7:00 PM
+                    break;
+
+                case DayOfWeek.Saturday:
+                    openTime = new TimeSpan(8, 0, 0);   // 8:00 AM
+                    closeTime = new TimeSpan(20, 0, 0);  // 8:00 PM
+                    break;
+
+                case DayOfWeek.Sunday:
+                    openTime = new TimeSpan(9, 0, 0);   // 9:00 AM
+                    closeTime = new TimeSpan(14, 0, 0);  // 2:00 PM
+                    break;
+
+                default:
+                    throw new InvalidOperationException("Invalid day of the week.");
+            }
+
+            TimeSpan appointmentStart = startTime.TimeOfDay;
+            TimeSpan appointmentEnd = endTime.TimeOfDay;
+
+            if (appointmentStart < openTime || appointmentEnd > closeTime)
+            {
+                throw new InvalidOperationException(
+                    $"The selected time is outside business hours. Opening hours for this day are from {openTime:hh\\:mm} to {closeTime:hh\\:mm}."
+                );
+            }
         }
 
         private async Task ValidateStylistAvailabilityAsync(int stylistId, DateTime startTime, DateTime endTime, int? currentAppointmentId = null)
