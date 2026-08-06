@@ -60,10 +60,53 @@ namespace IrisManager.Infrastructure.Context
             );
 
             modelBuilder.Entity<Stylist>().HasData(
-                new Stylist { Id = 1, Name = "Ana (Especialista en Uñas)", IsActive = true },
-                new Stylist { Id = 2, Name = "Carmen (Colorista y Peluquera)", IsActive = true },
-                new Stylist { Id = 3, Name = "Luis (Barbero)", IsActive = true }
+
+                new Stylist { Id = 1, Name = "Ana López", Phone = "809-555-0101", Email = "ana@correo.com", IsActive = true },
+                new Stylist { Id = 2, Name = "Sofía Martínez", Phone = "809-555-0102", Email = "sofia@correo.com", IsActive = true },
+                new Stylist { Id = 3, Name = "Lucía Fernández", Phone = "809-555-0103", Email = "lucia@correo.com", IsActive = true },
+                new Stylist { Id = 4, Name = "Raquel Vargas", Phone = "809-555-0104", Email = "raquel@correo.com", IsActive = true },
+
+
+                new Stylist { Id = 5, Name = "Marta Gómez", Phone = "809-555-0201", Email = "marta@correo.com", IsActive = true },
+                new Stylist { Id = 6, Name = "Laura Díaz", Phone = "809-555-0202", Email = "laura@correo.com", IsActive = true },
+                new Stylist { Id = 7, Name = "Elena Pérez", Phone = "809-555-0203", Email = "elena@correo.com", IsActive = true },
+                new Stylist { Id = 8, Name = "Valeria Castro", Phone = "809-555-0204", Email = "valeria@correo.com", IsActive = true },
+
+                new Stylist { Id = 9, Name = "Carmen Ruiz", Phone = "809-555-0301", Email = "carmen@correo.com", IsActive = true },
+                new Stylist { Id = 10, Name = "Rosa Sánchez", Phone = "809-555-0302", Email = "rosa@correo.com", IsActive = true },
+                new Stylist { Id = 11, Name = "Patricia Ramírez", Phone = "809-555-0303", Email = "patricia@correo.com", IsActive = true },
+                new Stylist { Id = 12, Name = "Daniela Medina", Phone = "809-555-0304", Email = "daniela@correo.com", IsActive = true }
             );
+            var serviceStylists = new List<object>();
+
+            for (int i = 1; i <= 12; i++)
+            {
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 1 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 2 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 3 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 4 });
+            }
+            for (int i = 13; i <= 18; i++)
+            {
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 5 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 6 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 7 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 8 });
+            }
+            for (int i = 19; i <= 23; i++)
+            {
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 9 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 10 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 11 });
+                serviceStylists.Add(new { ServicesId = i, StylistsId = 12 });
+            }
+            modelBuilder.SharedTypeEntity<Dictionary<string, object>>("ServiceStylist", builder =>
+            {
+                builder.Property<int>("ServicesId");
+                builder.Property<int>("StylistsId");
+                builder.HasKey("ServicesId", "StylistsId");
+                builder.HasData(serviceStylists);
+            });
         }
     }
 }

@@ -19,6 +19,10 @@ export class StylistService {
     return this.http.get<Stylist>(`${this.apiUrl}/${id}`);
   }
 
+  getStylistsByService(serviceId: number): Observable<Stylist[]> {
+  return this.http.get<Stylist[]>(`${this.apiUrl}/by-service/${serviceId}`);
+}
+
   createStylist(stylist: StylistCreateDTO): Observable<Stylist> {
     return this.http.post<Stylist>(this.apiUrl, stylist);
   }

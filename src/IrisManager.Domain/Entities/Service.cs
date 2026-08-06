@@ -17,5 +17,6 @@ namespace IrisManager.Domain.Entities
 
         [Required]
         public int DurationMinutes { get; set; }
+        public ICollection<Stylist> Stylists { get; set; } = new List<Stylist>();
     }
 }

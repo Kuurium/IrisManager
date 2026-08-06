@@ -1,218 +1,319 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import Swal from 'sweetalert2';
-import { AppointmentCreateDTO } from '../../core/models/appointment';
-import { Customer } from '../../core/models/customer';
-import { Stylist } from '../../core/models/stylist';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { AppointmentService } from '../../core/services/appointment';
 import { CustomerService } from '../../core/services/customer.service';
 import { StylistService } from '../../core/services/stylist.service';
-import { Service } from '../../core/models/service';
 import { ServiceService } from '../../core/services/service.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-appointment-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './appointment-form.html',
-  styleUrl: './appointment-form.scss'
+  styleUrls: ['./appointment-form.scss']
 })
 export class AppointmentFormComponent implements OnInit {
-  private appointmentService = inject(AppointmentService);
-  private customerService = inject(CustomerService);
-  private stylistService = inject(StylistService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private serviceService = inject(ServiceService);
+  appointmentId: number | null = null;
+  isEditMode: boolean = false;
+  isLoadingStylists: boolean = false;
 
-  customers: Customer[] = [];
-  stylists: Stylist[] = [];
-  services: Service[] = [];
+  customers: any[] = [];
+  stylists: any[] = [];
+  services: any[] = [];
 
-  formData: AppointmentCreateDTO = {
+  formData: any = {
     customerId: null,
     stylistId: null,
     serviceId: null,
-    service: '',
-    date: '',
-    time: '',
     status: 'Scheduled',
-    paymentMethod: 'Pendiente',
-    notes: ''
+    paymentMethod: '',
+    notes: '',
+    date: '',
+    time: ''
   };
 
-  isEditMode = false;
-  appointmentId: number | null = null;
+  constructor(
+    private appointmentService: AppointmentService,
+    private customerService: CustomerService,
+    private stylistService: StylistService,
+    private serviceService: ServiceService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.loadCustomers();
-    this.loadStylists();
-    this.loadServices();
+    const id = this.route.snapshot.paramMap.get('id');
+    
+    if (id) {
+      this.appointmentId = +id;
+      this.isEditMode = true;
+      this.loadAllDataForEdit(this.appointmentId);
+    } else {
+      this.loadDropdownData();
+    }
+  }
 
-    this.route.paramMap.subscribe(params => {
-  const id = params.get('id');
-  if (id) {
-    this.isEditMode = true;
-    this.appointmentId = +id;
-      }
+  loadAllDataForEdit(id: number): void {
+    forkJoin({
+      customers: this.customerService.getCustomers(),
+      services: this.serviceService ? this.serviceService.getServices() : Promise.resolve([])
+    }).subscribe({
+      next: (res: any) => {
+        this.customers = res.customers;
+        this.services = res.services;
+        this.loadAppointmentData(id);
+      },
+      error: (err) => console.error('Error al cargar catálogos:', err)
     });
   }
 
-  loadServices(): void {
-    this.serviceService.getServices().subscribe({
-      next: (data) => this.services = data,
-      error: () => console.error('Error al cargar servicios')
-    });
-  }
-
-  loadCustomers(): void {
+  loadDropdownData(): void {
     this.customerService.getCustomers().subscribe({
       next: (data) => this.customers = data,
-      error: () => console.error('Error al cargar clientes')
+      error: (err) => console.error('Error al cargar clientes:', err)
     });
-  }
 
-  loadStylists(): void {
-    this.stylistService.getStylists().subscribe({
-      next: (data) => this.stylists = data.filter(s => s.isActive),
-      error: () => console.error('Error al cargar estilistas')
-    });
-  }
-
-loadAppointmentData(id: number): void {
-  this.appointmentService.getAppointment(id).subscribe({
-    next: (data) => {
-      let formattedDate = '';
-      let formattedTime = '';
-
-      if (data.startTime) {
-        const dateObj = new Date(data.startTime);
-        
-        const year = dateObj.getFullYear();
-         const month = ('0' + (dateObj.getMonth() + 1)).slice(-2);
-         const day = ('0' + dateObj.getDate()).slice(-2);
-         this.formData.date = `${year}-${month}-${day}`;
-        
-        const hours = ('0' + dateObj.getHours()).slice(-2);
-         const minutes = ('0' + dateObj.getMinutes()).slice(-2);
-         this.formData.time = `${hours}:${minutes}`;
-      }
-
-      this.formData = {
-        customerId: data.customerId,
-        stylistId: data.stylistId,
-        service: data.service,
-        serviceId: data.serviceId,
-        status: data.status,
-        paymentMethod: data.paymentMethod,
-        notes: data.notes || '',
-        date: formattedDate,
-        time: formattedTime
-      };
-    },
-    error: () => {
-      Swal.fire('Error', 'No se pudo cargar la cita para editar.', 'error');
-      this.router.navigate(['/citas']);
+    if (this.serviceService) {
+      this.serviceService.getServices().subscribe({
+        next: (data) => this.services = data,
+        error: (err) => console.error('Error al cargar servicios:', err)
+      });
     }
-  });
-}
+  }
+
+  onServiceChange(resetStylist: boolean = true): void {
+    if (resetStylist) {
+      this.formData.stylistId = null;
+    }
+
+    if (!this.formData.serviceId) {
+      this.stylists = [];
+      return;
+    }
+
+    this.loadStylistsByService(Number(this.formData.serviceId));
+  }
+
+  loadStylistsByService(serviceId: number): void {
+    this.isLoadingStylists = true;
+
+    const fetchStylists$ = typeof (this.stylistService as any).getStylistsByService === 'function'
+      ? (this.stylistService as any).getStylistsByService(serviceId)
+      : this.stylistService.getStylists();
+
+    fetchStylists$.subscribe({
+      next: (data: any[]) => {
+        this.stylists = data || [];
+        this.isLoadingStylists = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error al filtrar estilistas por servicio:', err);
+        this.stylistService.getStylists().subscribe({
+          next: (allData) => {
+            this.stylists = allData;
+            this.isLoadingStylists = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.isLoadingStylists = false;
+          }
+        });
+      }
+    });
+  }
+
+  loadAppointmentData(id: number): void {
+    this.appointmentService.getAppointment(id).subscribe({
+      next: (data: any) => {
+        let formattedDate = '';
+        let formattedTime = '';
+
+        const rawStatus = data.status || data.Status ? String(data.status || data.Status).trim() : '';
+        let statusResult = rawStatus;
+
+        if (rawStatus === 'Programada' || rawStatus.toLowerCase() === 'scheduled') {
+          statusResult = 'Scheduled';
+        } else if (rawStatus === 'Completada' || rawStatus.toLowerCase() === 'completed') {
+          statusResult = 'Completed';
+        } else if (rawStatus === 'Cancelada' || rawStatus.toLowerCase() === 'cancelled') {
+          statusResult = 'Cancelled';
+        }
+
+        const rawPayment = data.paymentMethod || data.PaymentMethod ? String(data.paymentMethod || data.PaymentMethod).trim() : '';
+        let paymentResult = rawPayment;
+
+        if (rawPayment === 'Tarjeta' || rawPayment.toLowerCase() === 'card') {
+          paymentResult = 'Card';
+        } else if (rawPayment === 'Efectivo' || rawPayment.toLowerCase() === 'cash') {
+          paymentResult = 'Cash';
+        } else if (rawPayment === 'Transferencia' || rawPayment.toLowerCase() === 'transfer') {
+          paymentResult = 'Transfer';
+        } else if (rawPayment === 'Pendiente' || rawPayment.toLowerCase() === 'pending') {
+          paymentResult = 'Pending';
+        }
+
+        if (data.startTime) {
+          const dateObj = new Date(data.startTime);
+          const year = dateObj.getFullYear();
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          formattedDate = `${year}-${month}-${day}`;
+
+          const hours = String(dateObj.getHours()).padStart(2, '0');
+          const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+          formattedTime = `${hours}:${minutes}`;
+        }
+
+        const targetServiceId = data.serviceId ?? data.service?.id ?? null;
+        const targetStylistId = data.stylistId ?? data.stylist?.id ?? null;
+
+        this.formData = {
+          customerId: data.customerId ?? data.customer?.id ?? null,
+          stylistId: targetStylistId,
+          serviceId: targetServiceId,
+          date: formattedDate,
+          time: formattedTime,
+          status: statusResult || 'Scheduled',
+          paymentMethod: paymentResult || 'Pending',
+          notes: data.notes || ''
+        };
+
+        if (targetServiceId) {
+          this.onServiceChange(false);
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudo cargar la cita para editar.', 'error');
+        this.router.navigate(['/citas']);
+      }
+    });
+  }
 
   save(): void {
     if (!this.formData.customerId || !this.formData.stylistId || !this.formData.serviceId || !this.formData.date || !this.formData.time) {
-      Swal.fire('Atención', 'Por favor completa todos los campos obligatorios.', 'warning');
+      Swal.fire('Formulario incompleto', 'Por favor completa todos los campos requeridos (*).', 'warning');
       return;
     }
-    if (this.formData.date && this.formData.time) {
-    this.formData.startTime = `${this.formData.date}T${this.formData.time}:00`;
-  }
 
-    this.appointmentService.getAppointmentsByStylistAndDate(this.formData.stylistId, this.formData.date)
-      .subscribe({
-        next: (existingAppointments) => {
-          
-          const isOccupied = existingAppointments.some(apt => 
-            apt.time === this.formData.time && 
-            apt.id !== this.appointmentId &&
-            apt.status !== 'Cancelled'
-          );
+    const [year, month, day] = this.formData.date.split('-').map(Number);
+    const [hours, minutes] = this.formData.time.split(':').map(Number);
+    
+    // Construimos la fecha preservando la zona horaria local exacta ingresada por el usuario
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const localIsoStartTime = `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:00`;
 
-          if (isOccupied) {
-            Swal.fire(
-              'Estilista no disponible', 
-              'El estilista seleccionado ya tiene una cita a esa hora. Por favor, elige otro horario u otro profesional.', 
-              'warning'
-            );
-          } else {
-            this.executeSave();
-          }
+    let paymentValue = this.formData.paymentMethod;
+    if (paymentValue === 'Tarjeta' || paymentValue === 'Card') paymentValue = 'Card';
+    else if (paymentValue === 'Efectivo' || paymentValue === 'Cash') paymentValue = 'Cash';
+    else if (paymentValue === 'Transferencia' || paymentValue === 'Transfer') paymentValue = 'Transfer';
+    else if (paymentValue === 'Pendiente' || paymentValue === 'Pending') paymentValue = 'Pending';
+
+    let statusValue = this.formData.status;
+    if (statusValue === 'Completada' || statusValue === 'Completed') statusValue = 'Completed';
+    else if (statusValue === 'Programada' || statusValue === 'Scheduled') statusValue = 'Scheduled';
+    else if (statusValue === 'Cancelada' || statusValue === 'Cancelled') statusValue = 'Cancelled';
+
+    const dto: any = {
+      customerId: Number(this.formData.customerId),
+      stylistId: Number(this.formData.stylistId),
+      serviceId: Number(this.formData.serviceId),
+      startTime: localIsoStartTime,
+      date: this.formData.date,
+      time: this.formData.time,
+      status: statusValue || 'Scheduled',
+      paymentMethod: paymentValue || 'Pending',
+      notes: this.formData.notes || ''
+    };
+
+    if (this.isEditMode && this.appointmentId) {
+      dto.id = Number(this.appointmentId);
+      this.appointmentService.updateAppointment(this.appointmentId, dto).subscribe({
+        next: () => {
+          Swal.fire('¡Actualizado!', 'La cita ha sido actualizada correctamente.', 'success');
+          this.router.navigate(['/citas']);
         },
-        error: () => {
-          Swal.fire('Error', 'No se pudo validar la disponibilidad del estilista con el servidor.', 'error');
+        error: (err) => {
+          console.error('Error del servidor:', err);
+          const translatedMsg = this.getTranslatedErrorMessage(err);
+          Swal.fire({
+            icon: 'warning',
+            title: 'Horario ocupado',
+            text: translatedMsg,
+            confirmButtonColor: '#6f42c1'
+          });
         }
       });
-  }
-
-executeSave(): void {
-  const payload = {
-    ...this.formData,
-    customerId: Number(this.formData.customerId),
-    stylistId: Number(this.formData.stylistId),
-    serviceId: Number(this.formData.serviceId),
-    startTime: this.formData.startTime,
-    date: this.formData.date,
-    time: this.formData.time
-  };
-
-  if (this.isEditMode && this.appointmentId) {
-    this.appointmentService.updateAppointment(this.appointmentId, payload).subscribe({
-      next: () => {
-        Swal.fire('¡Éxito!', 'Cita actualizada correctamente.', 'success');
-        this.router.navigate(['/citas']);
-      },
-      error: (err) => {
-        console.error('Error al actualizar la cita:', err);
-        const errorText = JSON.stringify(err);
-        if (errorText.includes('already booked')) {
-          Swal.fire('Estilista no disponible', 'El estilista seleccionado ya tiene una cita que choca con este horario. Por favor, elige otra hora.', 'warning');
-        } else {
-          Swal.fire('Error', 'No se pudo actualizar la cita. Revisa la consola para más detalles.', 'error');
+    } else {
+      this.appointmentService.createAppointment(dto).subscribe({
+        next: () => {
+          Swal.fire('¡Guardado!', 'La cita ha sido creada correctamente.', 'success');
+          this.router.navigate(['/citas']);
+        },
+        error: (err) => {
+          console.error('Error al crear la cita:', err);
+          const translatedMsg = this.getTranslatedErrorMessage(err);
+          Swal.fire({
+            icon: 'warning',
+            title: 'Horario ocupado',
+            text: translatedMsg,
+            confirmButtonColor: '#6f42c1'
+          });
         }
-      }
-    });
-  } else {
-    this.appointmentService.createAppointment(payload).subscribe({
-      next: () => {
-        Swal.fire('¡Guardada!', 'La nueva cita ha sido registrada.', 'success');
-        this.router.navigate(['/citas']);
-      },
-      error: (err) => {
-        console.error('Error al crear la cita:', err);
-        const errorText = JSON.stringify(err);
-        if (errorText.includes('already booked')) {
-          Swal.fire('Estilista no disponible', 'El estilista seleccionado ya tiene una cita que choca con este horario. Por favor, elige otra hora.', 'warning');
-        } else {
-          Swal.fire('Error', 'No se pudo guardar la cita. Revisa la consola para más detalles.', 'error');
-        }
-      }
-    });
-  }
-}
-  formatDuration(minutes: number): string {
-  if (!minutes) return '0 min';
-  
-  if (minutes < 60) {
-    return `${minutes} min`;
+      });
+    }
   }
 
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
+  /**
+   * Extrae y traduce los mensajes de error devueltos por el backend C#
+   */
+  private getTranslatedErrorMessage(err: any): string {
+    let rawMsg = '';
 
-  if (remainingMinutes === 0) {
-    return `${hours}h`;
-  } 
-  
-  return `${hours}h ${remainingMinutes}min`;
-}
+    if (typeof err?.error === 'string') {
+      rawMsg = err.error;
+    } else if (err?.error?.message) {
+      rawMsg = err.error.message;
+    } else if (err?.message) {
+      rawMsg = err.message;
+    }
+
+    if (rawMsg.toLowerCase().includes('already booked') || rawMsg.toLowerCase().includes('is already booked')) {
+      return 'El estilista ya tiene una cita reservada en este horario. Por favor selecciona otra hora.';
+    }
+
+    return rawMsg || 'El estilista ya tiene una cita reservada en ese horario. Por favor selecciona otra hora.';
+  }
+
+  formatDuration(minutes: number | undefined): string {
+    if (!minutes) return '';
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+  }
+
+  getStylistSpecialties(stylist: any): string {
+    if (!stylist) return '';
+    return stylist.specialties || stylist.specialty || stylist.specialization || '';
+  }
+
+  getFullStylistSpecialties(stylist: any): string {
+    if (!stylist) return '';
+    if (Array.isArray(stylist.fullSpecialties)) {
+      return stylist.fullSpecialties.join(' - ');
+    }
+    return stylist.fullSpecialties || stylist.specialties || stylist.specialty || '';
+  }
+
+  goBack(): void {
+    this.router.navigate(['/citas']);
+  }
 }

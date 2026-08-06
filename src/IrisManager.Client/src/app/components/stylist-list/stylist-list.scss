@@ -1,0 +1,29 @@
+
+.services-checkbox-container {
+  max-height: 220px; 
+  overflow-y: auto;  
+  padding-right: 8px;
+  border: 1px solid #33324d;
+  border-radius: 6px;
+  background-color: #171527;
+  padding: 12px;
+}
+
+
+.services-checkbox-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.services-checkbox-container::-webkit-scrollbar-track {
+  background: #171527;
+  border-radius: 4px;
+}
+
+.services-checkbox-container::-webkit-scrollbar-thumb {
+  background: #6c5ce7;
+  border-radius: 4px;
+}
+
+.services-checkbox-container::-webkit-scrollbar-thumb:hover {
+  background: #8075e5;
+}

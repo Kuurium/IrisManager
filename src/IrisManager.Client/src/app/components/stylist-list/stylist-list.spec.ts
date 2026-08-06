@@ -1,22 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { StylistListComponent } from './stylist-list';
 
-import { StylistList } from './stylist-list';
-
-describe('StylistList', () => {
-  let component: StylistList;
-  let fixture: ComponentFixture<StylistList>;
+describe('StylistListComponent', () => {
+  let component: StylistListComponent;
+  let fixture: ComponentFixture<StylistListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StylistList],
+      imports: [StylistListComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(StylistList);
+    fixture = TestBed.createComponent(StylistListComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
 
-  it('should create', () => {
+  it('should be created', () => {
     expect(component).toBeTruthy();
   });
 });

@@ -1,96 +1,127 @@
-<div class="container-fluid mt-4">
-
+<div class="container mt-4">
   <div class="d-flex align-items-center mb-4">
-    <button class="btn btn-outline-secondary me-3" routerLink="/citas">
-      &larr; Volver
+    <button type="button" class="btn btn-outline-secondary me-3" (click)="goBack()">
+      ← Volver
     </button>
-    <h2 class="mb-0">{{ isEditMode ? 'Editar Cita' : 'Nueva Cita' }}</h2>
+    <h2 class="fw-bold m-0 text-white">
+      {{ isEditMode ? 'Editar Cita' : 'Nueva Cita' }}
+    </h2>
   </div>
 
-  <div class="card shadow-sm">
+  <div class="card shadow-lg border border-purple-subtle bg-dark-card text-light">
     <div class="card-body p-4">
+      <form (ngSubmit)="save()">
 
-      <form #appointmentForm="ngForm" (ngSubmit)="save()">
-        <div class="row">
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-purple-light">Cliente *</label>
+          <select [(ngModel)]="formData.customerId" name="customerId" class="form-select dark-input" required>
+            <option [ngValue]="null" disabled class="bg-dark text-white">Selecciona un cliente</option>
+            <option *ngFor="let customer of customers" [ngValue]="customer.id" class="bg-dark text-white">
+              {{ customer.fullName || customer.name || (customer.firstName + ' ' + customer.lastName) }}
+            </option>
+          </select>
+        </div>
 
-          <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Cliente <span class="text-danger">*</span></label>
-            <select class="form-select" name="customerId" [(ngModel)]="formData.customerId" required>
-              <option [ngValue]="null" disabled selected hidden>Selecciona un cliente</option>
-              <option *ngFor="let customer of customers" [ngValue]="customer.id">
-                {{ customer.name }}
-              </option>
-            </select>
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-purple-light">Servicio *</label>
+          <select 
+            [(ngModel)]="formData.serviceId" 
+            (change)="onServiceChange()" 
+            name="serviceId" 
+            class="form-select dark-input" 
+            required>
+            <option [ngValue]="null" disabled class="bg-dark text-white">Selecciona un servicio</option>
+            <option *ngFor="let service of services" [ngValue]="service.id" class="bg-dark text-white">
+              {{ service.name }}
+              <ng-container *ngIf="service.duration || service.durationMinutes">
+                ({{ formatDuration(service.duration || service.durationMinutes) }})
+              </ng-container>
+            </option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-purple-light">Estilista *</label>
+          <select 
+            [(ngModel)]="formData.stylistId" 
+            name="stylistId" 
+            class="form-select dark-input" 
+            [disabled]="!formData.serviceId || isLoadingStylists"
+            required>
+            
+            <option [ngValue]="null" disabled class="bg-dark text-white">
+              {{ !formData.serviceId ? 'Primero selecciona un servicio' : (isLoadingStylists ? 'Cargando estilistas...' : 'Selecciona un estilista') }}
+            </option>
+            
+            <option 
+              *ngFor="let stylist of stylists" 
+              [ngValue]="stylist.id"
+              [attr.title]="getFullStylistSpecialties(stylist)"
+              class="bg-dark text-white">
+              {{ stylist.fullName || stylist.name || (stylist.firstName + ' ' + stylist.lastName) }}
+              <ng-container *ngIf="getStylistSpecialties(stylist)">
+                - {{ getStylistSpecialties(stylist) }}
+              </ng-container>
+            </option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-purple-light">Fecha *</label>
+            <input type="date" [(ngModel)]="formData.date" name="date" class="form-control dark-input" required />
           </div>
-
-          <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Estilista <span class="text-danger">*</span></label>
-            <select class="form-select" name="stylistId" [(ngModel)]="formData.stylistId" required>
-              <option [ngValue]="null" disabled selected hidden>Selecciona un estilista</option>
-              <option *ngFor="let stylist of stylists" [ngValue]="stylist.id">
-                {{ stylist.name }} - {{ stylist.specialty }}
-              </option>
-            </select>
-          </div>
-
-<div class="col-md-12 mb-3">
-  <label class="form-label fw-semibold">Servicio <span class="text-danger">*</span></label>
-  <select class="form-select" name="serviceId" [(ngModel)]="formData.serviceId" required>
-    <option [ngValue]="null" disabled selected hidden>Selecciona un servicio</option>
-    <option *ngFor="let srv of services" [ngValue]="srv.id">
-      {{ srv.name }} - ${{ srv.price }} ({{ formatDuration(srv.durationMinutes) }})
-    </option>
-  </select>
-</div>
-
-          <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" name="date" [(ngModel)]="formData.date" required>
-          </div>
-
-          <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Hora <span class="text-danger">*</span></label>
-            <input type="time" class="form-control" name="time" [(ngModel)]="formData.time" required>
-          </div>
-
-          <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Estado de la Cita</label>
-            <select class="form-select" name="status" [(ngModel)]="formData.status">
-              <option value="Pendiente">Pendiente</option>
-              <option value="Confirmada">Confirmada</option>
-              <option value="Completada">Completada</option>
-              <option value="Cancelada">Cancelada</option>
-            </select>
-          </div>
-          <div class="col-md-6 mb-3">
-  <label class="form-label fw-semibold">Método de Pago</label>
-  <select class="form-select" [(ngModel)]="formData.paymentMethod" name="paymentMethod">
-    <option value="" disabled>Seleccione un método...</option>
-    <option value="Cash">Efectivo</option>
-    <option value="CreditCard">Tarjeta de Crédito</option>
-    <option value="Transfer">Transferencia</option>
-  </select>
-</div>
-
-          <div class="col-md-12 mb-3">
-            <label class="form-label fw-semibold">Notas u Observaciones</label>
-            <textarea class="form-control" name="notes" [(ngModel)]="formData.notes" rows="3" 
-                      placeholder="Detalles sobre el cabello del cliente, preferencias especiales, etc. (Opcional)"></textarea>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-purple-light">Hora *</label>
+            <input type="time" [(ngModel)]="formData.time" name="time" class="form-control dark-input" required />
           </div>
         </div>
 
-        <hr class="mt-4 mb-4">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-purple-light">Estado *</label>
+            <select [(ngModel)]="formData.status" name="status" class="form-select dark-input" required>
+              <option value="" disabled class="bg-dark text-white">Selecciona un estado</option>
+              <option value="Scheduled" class="bg-dark text-white">Programada</option>
+              <option value="Completed" class="bg-dark text-white">Completada</option>
+              <option value="Cancelled" class="bg-dark text-white">Cancelada</option>
+              <option value="Rescheduled" class="bg-dark text-white">Reprogramada</option>
+            </select>
+          </div>
 
-        <div class="d-flex justify-content-end">
-          <button type="button" class="btn btn-light border me-2" routerLink="/citas">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-purple-light">Método de Pago</label>
+            <select [(ngModel)]="formData.paymentMethod" name="paymentMethod" class="form-select dark-input">
+              <option value="" disabled class="bg-dark text-white">Selecciona un método de pago</option>
+              <option value="Cash" class="bg-dark text-white">Efectivo</option>
+              <option value="Card" class="bg-dark text-white">Tarjeta</option>
+              <option value="Transfer" class="bg-dark text-white">Transferencia</option>
+              <option value="Pending" class="bg-dark text-white">Pendiente</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold text-purple-light">Notas u Observaciones</label>
+          <textarea 
+            [(ngModel)]="formData.notes" 
+            name="notes" 
+            class="form-control dark-input" 
+            rows="3" 
+            placeholder="Detalles sobre el cabello del cliente, preferencias especiales, etc. (Opcional)">
+          </textarea>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 border-top border-purple-subtle pt-3">
+          <button type="button" class="btn btn-outline-secondary px-4" (click)="goBack()">
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary px-4" [disabled]="appointmentForm.invalid">
+          <button type="submit" class="btn btn-primary px-4">
             {{ isEditMode ? 'Actualizar Cita' : 'Guardar Cita' }}
           </button>
         </div>
+
       </form>
-      
     </div>
   </div>
 </div>

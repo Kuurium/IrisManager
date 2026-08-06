@@ -1,23 +1,23 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <button class="btn btn-outline-secondary" routerLink="/">
-    &larr; Volver
-  </button>
-    <h2>Gestión de Estilistas</h2>
+      &larr; Volver
+    </button>
+    <h2 class="text-white m-0">Gestión de Estilistas</h2>
     <button class="btn btn-primary" (click)="openModal()">
       + Nuevo Estilista
     </button>
   </div>
 
   <div *ngIf="isLoading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status">
+    <div class="spinner-border text-purple-light" role="status">
       <span class="visually-hidden">Cargando...</span>
     </div>
   </div>
 
-  <div class="table-responsive" *ngIf="!isLoading">
-    <table class="table table-striped table-hover shadow-sm rounded">
-      <thead class="table-dark">
+  <div class="table-responsive shadow-lg rounded border border-purple-subtle" *ngIf="!isLoading">
+    <table class="table table-dark table-hover mb-0 custom-dark-table">
+      <thead>
         <tr>
           <th>ID</th>
           <th>Nombre</th>
@@ -30,26 +30,32 @@
       </thead>
       <tbody>
         <tr *ngFor="let stylist of stylists">
-          <td>{{ stylist.id }}</td>
-          <td><strong>{{ stylist.name }}</strong></td>
-          <td>{{ stylist.email }}</td>
-          <td>{{ stylist.phone }}</td>
-          <td><span class="badge bg-info text-dark">{{ stylist.specialty }}</span></td>
+          <td class="align-middle fw-bold text-purple-light">{{ stylist.id }}</td>
+          <td class="align-middle text-white"><strong>{{ stylist.name }}</strong></td>
+          <td class="align-middle text-white">{{ stylist.email }}</td>
+          <td class="align-middle text-white">{{ stylist.phone }}</td>
+          <td class="align-middle text-white">
+            <span [attr.title]="stylist.fullSpecialties">
+              {{ stylist.specialty }}
+            </span>
+          </td>
           
-          <td class="text-center">
+          <td class="text-center align-middle">
             <span class="badge" [ngClass]="stylist.isActive ? 'bg-success' : 'bg-danger'">
               {{ stylist.isActive ? 'Activo' : 'Inactivo' }}
             </span>
           </td>
           
-          <td class="text-center">
-            <button class="btn btn-sm btn-outline-warning me-2" (click)="openModal(stylist)">Editar</button>
-            <button class="btn btn-sm btn-outline-danger" (click)="deleteStylist(stylist.id)">Eliminar</button>
+          <td class="align-middle">
+            <div class="d-flex justify-content-center align-items-center gap-2">
+              <button class="btn btn-sm btn-outline-warning" (click)="openModal(stylist)">Editar</button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteStylist(stylist.id)">Eliminar</button>
+            </div>
           </td>
         </tr>
-        
+
         <tr *ngIf="stylists.length === 0">
-          <td colspan="7" class="text-center py-4 text-muted">
+          <td colspan="7" class="text-center py-4 text-purple-light">
             No hay estilistas registrados en el sistema.
           </td>
         </tr>

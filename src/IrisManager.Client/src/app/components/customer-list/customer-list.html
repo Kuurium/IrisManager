@@ -1,86 +1,91 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <a class="btn btn-outline-secondary" routerLink="/">
-    &larr; Volver
-  </a>
-  
-  <h2 class="m-0">Gestión de Clientes</h2>
-  
-  <a class="btn btn-primary" routerLink="/clientes/nuevo">
-    + Nuevo Cliente
-  </a>
-</div><div class="card shadow-sm border-0">
-  <div class="card-body p-0">
-    <div class="table-responsive">
-      <table class="table table-hover table-striped mb-0">
-        
-        <thead>
-  <tr>
-    <th class="user-select-none" style="cursor: pointer; width: 10%;" (click)="sortBy('id')">
-      <div class="d-flex justify-content-between align-items-center">
-        ID 
-        @if (sortColumn === 'id') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
-      </div>
-    </th>
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <a class="btn btn-outline-secondary" routerLink="/">
+      &larr; Volver
+    </a>
     
-    <th class="user-select-none" style="cursor: pointer; width: 30%;" (click)="sortBy('name')">
-      <div class="d-flex justify-content-between align-items-center">
-        Nombre 
-        @if (sortColumn === 'name') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
-      </div>
-    </th>
+    <h2 class="m-0 text-white">Gestión de Clientes</h2>
     
-    <th class="user-select-none" style="cursor: pointer; width: 25%;" (click)="sortBy('email')">
-      <div class="d-flex justify-content-between align-items-center">
-        Correo 
-        @if (sortColumn === 'email') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
-      </div>
-    </th>
-    
-    <th class="user-select-none" style="cursor: pointer; width: 20%;" (click)="sortBy('phone')">
-      <div class="d-flex justify-content-between align-items-center">
-        Teléfono 
-        @if (sortColumn === 'phone') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
-      </div>
-    </th>
-    
-    <th style="width: 15%;">Acciones</th>
-  </tr>
-</thead>
-        
-        <tbody>
-          @for (customer of customers; track customer.id) {
-            <td>
-  @if (customer.isActive) {
-    <span class="badge bg-success">Activo</span>
-  } @else {
-    <span class="badge bg-danger">Inactivo</span>
-  }
-</td>
-            <tr>
-              <td>{{ customer.id }}</td>
-              <td>{{ customer.name }}</td>
-              <td>{{ customer.email }}</td>
-              <td>{{ customer.phone }}</td>
-              <th class="user-select-none" style="cursor: pointer; width: 15%;" (click)="sortBy('isActive')">
-  <div class="d-flex justify-content-between align-items-center">
-    Estado
-    @if (sortColumn === 'isActive') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
+    <a class="btn btn-primary" routerLink="/clientes/nuevo">
+      + Nuevo Cliente
+    </a>
   </div>
-</th>
-              <td class="text-center">
-  <button class="btn btn-sm btn-outline-primary me-2" (click)="edit(customer)">
-    <i class="bi bi-pencil"></i> Editar
-  </button>
-  
-  <button class="btn btn-sm btn-outline-danger" (click)="delete(customer.id!)">
-    <i class="bi bi-trash"></i> Eliminar
-  </button>
-</td>
+
+  <div class="card shadow-lg border border-purple-subtle bg-dark-card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0 custom-dark-table">
+          <thead>
+            <tr>
+              <th class="user-select-none" style="cursor: pointer; width: 10%;" (click)="sortBy('id')">
+                <div class="d-flex justify-content-between align-items-center">
+                  ID 
+                  @if (sortColumn === 'id') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
+                </div>
+              </th>
+              
+              <th class="user-select-none" style="cursor: pointer; width: 30%;" (click)="sortBy('name')">
+                <div class="d-flex justify-content-between align-items-center">
+                  Nombre 
+                  @if (sortColumn === 'name') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
+                </div>
+              </th>
+              
+              <th class="user-select-none" style="cursor: pointer; width: 25%;" (click)="sortBy('email')">
+                <div class="d-flex justify-content-between align-items-center">
+                  Correo 
+                  @if (sortColumn === 'email') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
+                </div>
+              </th>
+              
+              <th class="user-select-none" style="cursor: pointer; width: 20%;" (click)="sortBy('phone')">
+                <div class="d-flex justify-content-between align-items-center">
+                  Teléfono 
+                  @if (sortColumn === 'phone') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
+                </div>
+              </th>
+              
+              <th class="user-select-none text-center" style="cursor: pointer; width: 15%;" (click)="sortBy('isActive')">
+                <div class="d-flex justify-content-center align-items-center gap-1">
+                  Estado
+                  @if (sortColumn === 'isActive') { <span>{{ sortAscending ? '↑' : '↓' }}</span> }
+                </div>
+              </th>
+              
+              <th class="text-center" style="width: 15%;">Acciones</th>
             </tr>
-          }
-        </tbody>
-        
-      </table>
+          </thead>    
+          <tbody>
+            @for (customer of customers; track customer.id) {
+              <tr>
+                <td class="fw-bold text-purple-light">{{ customer.id }}</td>
+                <td class="text-white">{{ customer.name }}</td>
+                <td class="text-white">{{ customer.email }}</td>
+                <td class="text-white">{{ customer.phone }}</td>
+                
+                <td class="text-center align-middle">
+                  @if (customer.isActive) {
+                    <span class="badge bg-success">Activo</span>
+                  } @else {
+                    <span class="badge bg-danger">Inactivo</span>
+                  }
+                </td>
+                
+                <td class="align-middle">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-warning" (click)="edit(customer)">
+                      Editar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="delete(customer.id!)">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
