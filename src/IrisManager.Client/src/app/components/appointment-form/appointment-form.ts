@@ -197,16 +197,78 @@ export class AppointmentFormComponent implements OnInit {
     });
   }
 
+private validateBusinessHours(): string | null {
+  if (!this.formData.date || !this.formData.time || !this.formData.serviceId) {
+    return null;
+  }
+
+  // Asegurar que el ID sea numérico para encontrar el servicio
+  const selectedService = this.services.find(s => Number(s.id) === Number(this.formData.serviceId));
+  const durationMinutes = Number(selectedService?.durationMinutes || selectedService?.duration || 30);
+
+  const [year, month, day] = this.formData.date.split('-').map(Number);
+  // Crear la fecha en UTC/Local exacto para evitar desfases de zona horaria al obtener el día de la semana
+  const appointmentDate = new Date(year, month - 1, day);
+  const dayOfWeek = appointmentDate.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+
+  const [hours, minutes] = this.formData.time.split(':').map(Number);
+  const startMinutes = hours * 60 + minutes;
+  const endMinutes = startMinutes + durationMinutes;
+
+  let openMinutes = 0;
+  let closeMinutes = 0;
+  let rangeText = '';
+
+  if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Lunes a Viernes (8:00 AM - 7:00 PM)
+    openMinutes = 8 * 60;   // 480 min
+    closeMinutes = 19 * 60; // 1140 min
+    rangeText = '8:00 AM a 7:00 PM';
+  } else if (dayOfWeek === 6) { // Sábado (8:00 AM - 8:00 PM)
+    openMinutes = 8 * 60;   // 480 min
+    closeMinutes = 20 * 60; // 1200 min
+    rangeText = '8:00 AM a 8:00 PM';
+  } else if (dayOfWeek === 0) { // Domingo (9:00 AM - 2:00 PM)
+    openMinutes = 9 * 60;   // 540 min
+    closeMinutes = 14 * 60; // 840 min
+    rangeText = '9:00 AM a 2:00 PM';
+  }
+
+  console.log({
+    dayOfWeek,
+    startMinutes,
+    endMinutes,
+    openMinutes,
+    closeMinutes,
+    isOutside: startMinutes < openMinutes || endMinutes > closeMinutes
+  });
+
+  if (startMinutes < openMinutes || endMinutes > closeMinutes) {
+    return `La cita está fuera del horario de atención para ese día (${rangeText}). Por favor selecciona una hora dentro del rango.`;
+  }
+
+  return null;
+}
+
   save(): void {
     if (!this.formData.customerId || !this.formData.stylistId || !this.formData.serviceId || !this.formData.date || !this.formData.time) {
       Swal.fire('Formulario incompleto', 'Por favor completa todos los campos requeridos (*).', 'warning');
       return;
     }
 
+    const businessHoursError = this.validateBusinessHours();
+    if (businessHoursError) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Horario no disponible',
+        text: businessHoursError,
+        confirmButtonColor: '#6f42c1'
+      });
+      return;
+    }
+
     const [year, month, day] = this.formData.date.split('-').map(Number);
     const [hours, minutes] = this.formData.time.split(':').map(Number);
     
-    // Construimos la fecha preservando la zona horaria local exacta ingresada por el usuario
     const pad = (n: number) => String(n).padStart(2, '0');
     const localIsoStartTime = `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:00`;
 
@@ -245,7 +307,7 @@ export class AppointmentFormComponent implements OnInit {
           const translatedMsg = this.getTranslatedErrorMessage(err);
           Swal.fire({
             icon: 'warning',
-            title: 'Horario ocupado',
+            title: 'No se puede agendar',
             text: translatedMsg,
             confirmButtonColor: '#6f42c1'
           });
@@ -262,7 +324,7 @@ export class AppointmentFormComponent implements OnInit {
           const translatedMsg = this.getTranslatedErrorMessage(err);
           Swal.fire({
             icon: 'warning',
-            title: 'Horario ocupado',
+            title: 'No se puede agendar',
             text: translatedMsg,
             confirmButtonColor: '#6f42c1'
           });
@@ -271,9 +333,6 @@ export class AppointmentFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Extrae y traduce los mensajes de error devueltos por el backend C#
-   */
   private getTranslatedErrorMessage(err: any): string {
     let rawMsg = '';
 
@@ -285,11 +344,17 @@ export class AppointmentFormComponent implements OnInit {
       rawMsg = err.message;
     }
 
-    if (rawMsg.toLowerCase().includes('already booked') || rawMsg.toLowerCase().includes('is already booked')) {
+    const lowerMsg = rawMsg.toLowerCase();
+
+    if (lowerMsg.includes('outside business hours')) {
+      return 'La cita está fuera del horario de atención del establecimiento. Por favor consulta nuestros horarios de servicio.';
+    }
+
+    if (lowerMsg.includes('already booked') || lowerMsg.includes('is already booked')) {
       return 'El estilista ya tiene una cita reservada en este horario. Por favor selecciona otra hora.';
     }
 
-    return rawMsg || 'El estilista ya tiene una cita reservada en ese horario. Por favor selecciona otra hora.';
+    return rawMsg || 'No se pudo procesar la solicitud. Verifica el horario e intenta de nuevo.';
   }
 
   formatDuration(minutes: number | undefined): string {
