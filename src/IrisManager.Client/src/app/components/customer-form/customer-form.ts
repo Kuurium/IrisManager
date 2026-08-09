@@ -1,23 +1,23 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule,FormsModule ,FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomerService } from '../../core/services/customer.service';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './customer-form.html',
   styleUrl: './customer-form.scss'
 })
 export class CustomerFormComponent implements OnInit {
-  
+  @Input() customerToEdit: any = null;
+  @Output() close = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<void>();
+
   private customerService = inject(CustomerService);
   private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
 
   customerForm: FormGroup;
   clienteId: number | null = null;
@@ -27,64 +27,61 @@ export class CustomerFormComponent implements OnInit {
       id: [0],
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern('^[0-9]{8,}$')]]
+      phone: ['', [Validators.required, Validators.pattern('^[0-9\\-]{8,}$')]],
+      isActive: [true]
     });
   }
 
-  ngOnInit() {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.clienteId = Number(id);
-        this.cargarCliente(this.clienteId);
+  ngOnInit(): void {
+    if (this.customerToEdit) {
+      this.clienteId = this.customerToEdit.id;
+      const dataToPatch = { ...this.customerToEdit };
+      if (dataToPatch.phone) {
+        dataToPatch.phone = this.formatPhone(dataToPatch.phone);
       }
-    });
+      this.customerForm.patchValue(dataToPatch);
+    }
   }
 
-  cargarCliente(id: number) {
-    this.customerService.getCustomerById(id).subscribe({
-      next: (cliente: any) => {
-        this.customerForm.patchValue(cliente);
-      },
-      error: () => {
-        Swal.fire('Error', 'No se pudo cargar la información del cliente.', 'error').then(() => {
-          this.router.navigate(['/clientes']);
-        });
-      }
-    });
+  closeModal(): void {
+    this.close.emit();
   }
 
-  onSubmit() {
+  private formatPhone(phone: string): string {
+    if (!phone) return '';
+    const cleaned = ('' + phone).replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+  }
+
+  onSubmit(): void {
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
-      Swal.fire({
-        icon: 'error',
-        title: 'Faltan datos',
-        text: 'Por favor verifica los campos marcados en rojo.'
-      });
       return;
     }
 
-    const formValue = this.customerForm.value;
+    const formValue = { ...this.customerForm.value };
+    if (formValue.phone) {
+      formValue.phone = this.formatPhone(formValue.phone);
+    }
 
     if (this.clienteId && this.clienteId > 0) {
       this.customerService.updateCustomer(this.clienteId, formValue).subscribe({
         next: () => {
-          Swal.fire('¡Actualizado!', 'Cliente actualizado correctamente.', 'success').then(() => {
-            this.router.navigate(['/clientes']);
-          });
+          Swal.fire('¡Actualizado!', 'Cliente actualizado correctamente.', 'success');
+          this.saved.emit();
         },
         error: (err: any) => {
           Swal.fire('Error', err.message || 'Hubo un problema al actualizar.', 'error');
         }
       });
-    } 
-    else {
+    } else {
       this.customerService.createCustomer(formValue).subscribe({
         next: () => {
-          Swal.fire('¡Guardado!', 'Cliente guardado correctamente.', 'success').then(() => {
-            this.router.navigate(['/clientes']);
-          });
+          Swal.fire('¡Guardado!', 'Cliente guardado correctamente.', 'success');
+          this.saved.emit();
         },
         error: (err: any) => {
           Swal.fire('Error', err.message || 'Hubo un problema al crear.', 'error');

@@ -72,6 +72,7 @@ namespace IrisManager.Application.Service
             customer.Name = dto.Name;
             customer.Email = dto.Email;
             customer.Phone = dto.Phone;
+            customer.IsActive = dto.IsActive;
 
             _customerRepository.Update(customer);
             await _customerRepository.SaveChangesAsync();

@@ -1,42 +1,79 @@
-<main class="home-container">
-  <div class="hero-section">
-    <img src="logo.png" alt="IrisManager Logo" class="home-logo">
-    <h1 class="brand-title">IrisManager</h1>
-    <p class="brand-subtitle">Gestión integral de clientes, personal y citas</p>
+<div class="home-container d-flex flex-column align-items-center justify-content-center text-center">
+  
+  <div class="logo-wrapper mb-3">
+    <img src="logo.png" alt="IrisManager Logo" class="main-logo" />
   </div>
 
-  <div class="cards-grid">
-    <a routerLink="/clientes" class="nav-card">
-      <div class="card-icon">👥</div>
-      <h3>Clientes</h3>
-      <p>Registro, edición y gestión de clientes</p>
-    </a>
+  <h1 class="display-4 text-white fw-bold mb-1">IrisManager</h1>
+  <p class="text-white-60 fs-5 mb-5">Gestión integral de clientes, personal y citas</p>
 
-    <a routerLink="/estilistas" class="nav-card">
-      <div class="card-icon">✂️</div>
-      <h3>Estilistas</h3>
-      <p>Administración del personal</p>
-    </a>
+  <div class="container">
+    
+    <div class="row g-4 justify-content-center mb-4">
+      
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="card home-card bg-dark-card text-white border border-secondary border-opacity-25 h-100 p-4 text-center shadow-sm" routerLink="/dashboard">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center p-0">
+            <i class="bi bi-speedometer2 display-5 text-purple-bright mb-3"></i>
+            <h5 class="card-title fw-bold mb-2">Panel General</h5>
+            <p class="text-white-60 small mb-0">Resumen de métricas, reloj e ingresos en tiempo real</p>
+          </div>
+        </div>
+      </div>
 
-    <a routerLink="/citas" class="nav-card">
-      <div class="card-icon">📅</div>
-      <h3>Citas</h3>
-      <p>Gestión de horarios y reservas</p>
-    </a>
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="card home-card bg-dark-card text-white border border-secondary border-opacity-25 h-100 p-4 text-center shadow-sm" routerLink="/clientes">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center p-0">
+            <i class="bi bi-people-fill display-5 text-purple-bright mb-3"></i>
+            <h5 class="card-title fw-bold mb-2">Clientes</h5>
+            <p class="text-white-60 small mb-0">Registro, edición y gestión de clientes</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="card home-card bg-dark-card text-white border border-secondary border-opacity-25 h-100 p-4 text-center shadow-sm" routerLink="/estilistas">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center p-0">
+            <i class="bi bi-scissors display-5 text-purple-bright mb-3"></i>
+            <h5 class="card-title fw-bold mb-2">Estilistas</h5>
+            <p class="text-white-60 small mb-0">Administración del personal</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="card home-card bg-dark-card text-white border border-secondary border-opacity-25 h-100 p-4 text-center shadow-sm" routerLink="/citas">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center p-0">
+            <i class="bi bi-calendar-event-fill display-5 text-purple-bright mb-3"></i>
+            <h5 class="card-title fw-bold mb-2">Citas</h5>
+            <p class="text-white-60 small mb-0">Gestión de horarios y reservas</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row g-4">
+      
+      <div class="col-12 col-md-6">
+        <div class="info-card p-4 rounded-3 border border-secondary border-opacity-25 text-center h-100 d-flex flex-column justify-content-center">
+          <h6 class="text-purple-bright fw-bold mb-3">Horario de Atención</h6>
+          <p class="small text-white-60 mb-1">Lunes a Viernes: 8:00 AM - 7:00 PM</p>
+          <p class="small text-white-60 mb-1">Sábados: 8:00 AM - 8:00 PM</p>
+          <p class="small text-white-60 mb-0">Domingos: 9:00 AM - 2:00 PM</p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="info-card p-4 rounded-3 border border-secondary border-opacity-25 text-center h-100 d-flex flex-column justify-content-center">
+          <h6 class="text-purple-bright fw-bold mb-3">Desarrollador</h6>
+          <p class="small text-white-60 mb-2">Nombre: <strong class="text-white">Joseph Alexander Torres Jones</strong></p>
+          <p class="small text-white-60 mb-0">Matrícula: <strong class="text-white">2025-0991</strong></p>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
-  <footer class="home-footer">
-    <div class="footer-card">
-      <h4>Horario de Atención</h4>
-      <p>Lunes a Viernes: 8:00 AM - 7:00 PM</p>
-      <p>Sábados: 8:00 AM - 8:00 PM</p>
-      <p>Domingos: 9:00 AM - 2:00 PM</p>
-    </div>
-
-    <div class="footer-card student-info">
-      <h4>Desarrollador</h4>
-      <p><strong>Nombre:</strong> Joseph Alexander Torres Jones</p>
-      <p><strong>Matrícula:</strong> 2025-0991</p>
-    </div>
-  </footer>
-</main>
+</div>

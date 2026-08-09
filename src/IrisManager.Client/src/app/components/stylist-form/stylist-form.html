@@ -1,28 +1,114 @@
-<form #stylistForm="ngForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-        <label class="form-label text-purple-light fw-semibold">Especialidades (Servicios)</label>
-        
-        <div class="services-checkbox-grid border rounded p-3 bg-dark">
-            <div *ngFor="let service of availableServices" class="form-check mb-2">
-                <input 
-                    class="form-check-input dark-checkbox" 
-                    type="checkbox" 
-                    [id]="'service-' + service.id"
-                    [checked]="isServiceSelected(service.id)"
-                    (change)="onServiceToggle(service.id, $event)"
-                />
-                <label class="form-check-label text-light ms-1" [for]="'service-' + service.id">
-                    {{ service.name || service.nombre }}
-                </label>
+<div class="modal-backdrop fade show"></div>
+
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content bg-dark-card border border-purple-subtle text-white shadow-lg">
+
+      <div class="modal-header border-bottom border-secondary border-opacity-25 py-3">
+        <h5 class="modal-title fw-bold text-white">
+          {{ stylistToEdit ? 'Editar Estilista' : 'Nuevo Estilista' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <form #stylistForm="ngForm" (ngSubmit)="onSubmit()">
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-purple-light fw-semibold">Nombre Completo *</label>
+              <input 
+                type="text" 
+                name="name" 
+                [(ngModel)]="formData.name" 
+                class="form-control dark-input" 
+                placeholder="Ej. Ana López" 
+                required />
             </div>
 
-            <div *ngIf="availableServices.length === 0" class="text-muted small">
-                Cargando catálogo de servicios...
+            <div class="col-md-6">
+              <label class="form-label text-purple-light fw-semibold">Correo Electrónico *</label>
+              <input 
+                type="email" 
+                name="email" 
+                [(ngModel)]="formData.email" 
+                class="form-control dark-input" 
+                placeholder="ana@correo.com" 
+                required />
             </div>
-        </div>
-        
-        <div *ngIf="selectedServiceIds.length === 0 && stylistForm.submitted" class="text-danger small mt-1">
-            Debe seleccionar al menos un servicio.
-        </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-purple-light fw-semibold">Teléfono *</label>
+              <input 
+                type="text" 
+                name="phone" 
+                [(ngModel)]="formData.phone" 
+                class="form-control dark-input" 
+                placeholder="809-555-0101" 
+                required />
+            </div>
+
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-check form-switch p-3 rounded bg-dark border border-secondary border-opacity-25 w-100">
+                <input 
+                  class="form-check-input ms-0 me-3" 
+                  type="checkbox" 
+                  id="isActiveStylist" 
+                  name="isActive" 
+                  [(ngModel)]="formData.isActive"
+                  style="cursor: pointer;">
+                <label class="form-check-label text-white fw-semibold" for="isActiveStylist" style="cursor: pointer;">
+                  Estado: 
+                  <span [class]="formData.isActive ? 'text-success' : 'text-danger'">
+                    {{ formData.isActive ? 'Activo (Disponible)' : 'Inactivo (Ausencia / Licencia)' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-purple-light fw-semibold">Especialidades (Servicios) *</label>
+            
+            <div class="services-checkbox-grid border border-secondary border-opacity-25 rounded p-3 bg-dark" style="max-height: 200px; overflow-y: auto;">
+              <div *ngFor="let service of availableServices" class="form-check mb-2">
+                <input 
+                  class="form-check-input dark-checkbox" 
+                  type="checkbox" 
+                  [id]="'service-' + service.id"
+                  [checked]="isServiceSelected(service.id)"
+                  (change)="onServiceToggle(service.id, $event)"
+                />
+                <label class="form-check-label text-light ms-1" [for]="'service-' + service.id">
+                  {{ service.name || service.nombre }}
+                </label>
+              </div>
+
+              <div *ngIf="availableServices.length === 0" class="text-white-50 small">
+                Cargando catálogo de servicios...
+              </div>
+            </div>
+            
+            <div *ngIf="selectedServiceIds.length === 0 && stylistForm.submitted" class="text-danger small mt-1">
+              Debe seleccionar al menos un servicio.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 border-top border-secondary border-opacity-25 pt-3 mt-4">
+            <button type="button" class="btn btn-outline-secondary px-4" (click)="closeModal()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="stylistForm.invalid || selectedServiceIds.length === 0">
+              {{ stylistToEdit ? 'Actualizar Estilista' : 'Guardar Estilista' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
     </div>
-</form>
+  </div>
+</div>

@@ -1,17 +1,28 @@
 <div class="container-fluid mt-4 px-2 px-md-3">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-  <div class="d-flex align-items-center gap-3">
-    <button class="btn btn-outline-secondary" routerLink="/">
-      &larr; Volver
-    </button>
-    <h2 class="mb-0 text-white">Gestión de Citas</h2>
-  </div>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary" routerLink="/">
+        &larr; Volver
+      </button>
+      <h2 class="mb-0 text-white">Gestión de Citas</h2>
+    </div>
 
-  <button class="btn btn-primary" routerLink="/citas/nueva">
-    + Nueva Cita
-  </button>
-</div>
+    <div class="d-flex align-items-center gap-2">
+      <button 
+        type="button"
+        class="btn btn-sm" 
+        [ngClass]="showInactiveCustomers ? 'btn-warning' : 'btn-outline-secondary'"
+        (click)="toggleInactiveFilter()">
+        {{ showInactiveCustomers ? 'Ocultar clientes inactivos' : 'Mostrar clientes inactivos' }}
+      </button>
+
+      <!-- Cambiado routerLink por evento (click)="openModal()" -->
+      <button class="btn btn-primary" (click)="openModal()">
+        + Nueva Cita
+      </button>
+    </div>
+  </div>
 
   <div class="table-responsive shadow-lg rounded border border-purple-subtle">
     <table class="table table-dark table-hover align-middle mb-0 custom-dark-table">
@@ -28,11 +39,24 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let apt of appointments">
+        <tr *ngFor="let apt of filteredAppointments">
           <td class="fw-bold text-purple-light">{{ apt.id }}</td>
-          <td class="text-white">{{ apt.customerName }}</td>
+          <td class="text-white">
+            {{ apt.customerName }}
+            <span *ngIf="apt.isCustomerActive === false" class="badge bg-danger ms-1" style="font-size: 0.7rem;">
+              Inactivo
+            </span>
+          </td>
           <td class="text-white">{{ apt.stylistName }}</td>
-          <td class="text-white">{{ apt.serviceName }}</td>
+          
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-white fw-semibold">{{ apt.serviceName }}</span>
+              <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-2 py-1">
+                ${{ apt.servicePrice || 0 }}
+              </span>
+            </div>
+          </td>
           
           <td>
             <div class="fw-semibold text-white">{{ apt.startTime | date:'mediumDate' }}</div>
@@ -57,7 +81,8 @@
           </td>
 
           <td class="text-center text-nowrap">
-            <button class="btn btn-sm btn-outline-warning me-2" [routerLink]="['/citas/editar', apt.id]">
+            <!-- Cambiado routerLink por evento (click)="openModal(apt)" -->
+            <button class="btn btn-sm btn-outline-warning me-2" (click)="openModal(apt)">
               Editar
             </button>
             <button class="btn btn-sm btn-outline-danger" (click)="deleteAppointment(apt.id)">
@@ -69,7 +94,15 @@
     </table>
   </div>
 
-  <div class="alert alert-dark text-center border-purple-subtle mt-3 text-purple-light" *ngIf="appointments.length === 0">
-    No hay citas registradas en el sistema.
+  <div class="alert alert-dark text-center border-purple-subtle mt-3 text-purple-light" *ngIf="filteredAppointments.length === 0">
+    No hay citas para mostrar con el filtro actual.
   </div>
 </div>
+
+<!-- COMPONENTE MODAL EMERGENTE DE CITA -->
+<app-appointment-form 
+  *ngIf="showModal" 
+  [appointmentToEdit]="selectedAppointment" 
+  (close)="closeModal()" 
+  (saved)="onModalSaved()">
+</app-appointment-form>

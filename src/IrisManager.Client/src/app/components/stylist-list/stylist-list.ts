@@ -1,4 +1,4 @@
-import { Component, OnInit, inject,ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StylistService } from '../../core/services/stylist.service';
 import { Stylist } from '../../core/models/stylist';
@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-stylist-list',
   standalone: true,
-  imports: [CommonModule, StylistFormComponent,RouterLink],
+  imports: [CommonModule, StylistFormComponent, RouterLink],
   templateUrl: './stylist-list.html',
   styleUrl: './stylist-list.scss'
 })
@@ -26,8 +26,6 @@ export class StylistListComponent implements OnInit {
   ngOnInit(): void {
     this.loadStylists();
   }
-
-  
 
   loadStylists() {
     this.isLoading = true;
@@ -46,11 +44,19 @@ export class StylistListComponent implements OnInit {
     });
   }
 
+  formatPhone(phone: string | null | undefined): string {
+    if (!phone) return 'N/A';
+    const cleaned = ('' + phone).replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+  }
+
   openModal(stylist?: Stylist) {
-    console.log('¡Click en Editar!', stylist);
-  this.selectedStylist = stylist || null;
-  this.showModal = true;
-  this.cdr.detectChanges();
+    this.selectedStylist = stylist || null;
+    this.showModal = true;
+    this.cdr.detectChanges();
   }
 
   closeModal() {
@@ -64,7 +70,7 @@ export class StylistListComponent implements OnInit {
     this.loadStylists();
   }
 
-deleteStylist(id: number): void {
+  deleteStylist(id: number): void {
     Swal.fire({
       title: '¿Estás seguro?',
       text: "El estilista pasará a estado 'Inactivo' y no podrá recibir nuevas citas.",
