@@ -6,9 +6,9 @@
     
     <h2 class="m-0 text-white">Gestión de Clientes</h2>
     
-    <a class="btn btn-primary" routerLink="/clientes/nuevo">
+    <button class="btn btn-primary" (click)="openModal()">
       + Nuevo Cliente
-    </a>
+    </button>
   </div>
 
   <div class="card shadow-lg border border-purple-subtle bg-dark-card">
@@ -61,7 +61,10 @@
                 <td class="fw-bold text-purple-light">{{ customer.id }}</td>
                 <td class="text-white">{{ customer.name }}</td>
                 <td class="text-white">{{ customer.email }}</td>
-                <td class="text-white">{{ customer.phone }}</td>
+                
+                <td class="text-white">
+                  {{ customer.phone && customer.phone.length === 10 ? customer.phone.slice(0,3) + '-' + customer.phone.slice(3,6) + '-' + customer.phone.slice(6) : customer.phone }}
+                </td>
                 
                 <td class="text-center align-middle">
                   @if (customer.isActive) {
@@ -73,7 +76,8 @@
                 
                 <td class="align-middle">
                   <div class="d-flex justify-content-center align-items-center gap-2">
-                    <button class="btn btn-sm btn-outline-warning" (click)="edit(customer)">
+                    <!-- Cambiado método de edición por openModal(customer) -->
+                    <button class="btn btn-sm btn-outline-warning" (click)="openModal(customer)">
                       Editar
                     </button>
                     <button class="btn btn-sm btn-outline-danger" (click)="delete(customer.id!)">
@@ -89,3 +93,10 @@
     </div>
   </div>
 </div>
+
+<app-customer-form 
+  *ngIf="showModal" 
+  [customerToEdit]="selectedCustomer" 
+  (close)="closeModal()" 
+  (saved)="onModalSaved()">
+</app-customer-form>

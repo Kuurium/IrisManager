@@ -10,7 +10,7 @@
   </div>
 
   <div *ngIf="isLoading" class="text-center my-5">
-    <div class="spinner-border text-purple-light" role="status">
+    <div class="spinner-border text-purple-bright" role="status">
       <span class="visually-hidden">Cargando...</span>
     </div>
   </div>
@@ -33,7 +33,11 @@
           <td class="align-middle fw-bold text-purple-light">{{ stylist.id }}</td>
           <td class="align-middle text-white"><strong>{{ stylist.name }}</strong></td>
           <td class="align-middle text-white">{{ stylist.email }}</td>
-          <td class="align-middle text-white">{{ stylist.phone }}</td>
+          
+          <td class="align-middle text-white">
+            {{ formatPhone(stylist.phone) }}
+          </td>
+
           <td class="align-middle text-white">
             <span [attr.title]="stylist.fullSpecialties">
               {{ stylist.specialty }}

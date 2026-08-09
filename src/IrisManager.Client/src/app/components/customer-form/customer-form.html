@@ -1,67 +1,97 @@
-<div class="container mt-4">
-  <div class="mb-4">
-    <a class="btn btn-outline-secondary" routerLink="/clientes">
-      &larr; Cancelar y Volver
-    </a>
-  </div>
+<div class="modal-backdrop fade show"></div>
 
-  <div class="card shadow-lg border border-purple-subtle bg-dark-card text-light p-4">
-    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()" novalidate>
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content bg-dark-card border border-purple-subtle text-white shadow-lg">
       
-      <div class="mb-3">
-        <label for="name" class="form-label text-purple-light fw-semibold">Nombre del Cliente</label>
-        <input 
-          type="text" 
-          id="name" 
-          class="form-control dark-input" 
-          formControlName="name" 
-          placeholder="Ej. Maria Pérez"
-          [ngClass]="{'is-invalid': customerForm.get('name')?.invalid && (customerForm.get('name')?.dirty || customerForm.get('name')?.touched)}">
-        
-        <div *ngIf="customerForm.get('name')?.invalid && (customerForm.get('name')?.dirty || customerForm.get('name')?.touched)" class="invalid-feedback">
-          <div *ngIf="customerForm.get('name')?.hasError('required')">El nombre es obligatorio.</div>
-          <div *ngIf="customerForm.get('name')?.hasError('minlength')">El nombre debe tener al menos 3 caracteres.</div>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label for="email" class="form-label text-purple-light fw-semibold">Correo Electrónico</label>
-        <input 
-          type="email" 
-          id="email" 
-          class="form-control dark-input" 
-          formControlName="email" 
-          placeholder="ejemplo@correo.com"
-          [ngClass]="{'is-invalid': customerForm.get('email')?.invalid && (customerForm.get('email')?.dirty || customerForm.get('email')?.touched)}">
-        
-        <div *ngIf="customerForm.get('email')?.invalid && (customerForm.get('email')?.dirty || customerForm.get('email')?.touched)" class="invalid-feedback">
-          <div *ngIf="customerForm.get('email')?.hasError('required')">El correo es obligatorio.</div>
-          <div *ngIf="customerForm.get('email')?.hasError('email')">Ingrese un formato de correo válido.</div>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label for="phone" class="form-label text-purple-light fw-semibold">Teléfono</label>
-        <input 
-          type="text" 
-          id="phone" 
-          class="form-control dark-input" 
-          formControlName="phone" 
-          placeholder="809-000-0000"
-          [ngClass]="{'is-invalid': customerForm.get('phone')?.invalid && (customerForm.get('phone')?.dirty || customerForm.get('phone')?.touched)}">
-        
-        <div *ngIf="customerForm.get('phone')?.invalid && (customerForm.get('phone')?.dirty || customerForm.get('phone')?.touched)" class="invalid-feedback">
-          <div *ngIf="customerForm.get('phone')?.hasError('required')">El teléfono es obligatorio.</div>
-          <div *ngIf="customerForm.get('phone')?.hasError('pattern')">Solo se permiten números (mínimo 8 dígitos).</div>
-        </div>
-      </div>
-
-      <div class="mt-4">
-        <button type="submit" class="btn btn-primary px-4" [disabled]="customerForm.invalid">
-          Guardar Cliente
+      <div class="modal-header border-bottom border-secondary border-opacity-25 py-3">
+        <h5 class="modal-title fw-bold text-white">
+          {{ clienteId ? 'Editar Cliente' : 'Nuevo Cliente' }}
+        </h5>
+        <button 
+          type="button" 
+          class="btn-close btn-close-white" 
+          aria-label="Close" 
+          (click)="closeModal()">
         </button>
       </div>
 
-    </form>
+      <div class="modal-body p-4">
+        <form [formGroup]="customerForm" (ngSubmit)="onSubmit()" novalidate>
+          
+          <div class="mb-3">
+            <label for="name" class="form-label text-purple-light fw-semibold">Nombre del Cliente *</label>
+            <input 
+              type="text" 
+              id="name" 
+              class="form-control dark-input" 
+              formControlName="name" 
+              placeholder="Ej. María Pérez"
+              [ngClass]="{'is-invalid': customerForm.get('name')?.invalid && (customerForm.get('name')?.dirty || customerForm.get('name')?.touched)}">
+            
+            <div *ngIf="customerForm.get('name')?.invalid && (customerForm.get('name')?.dirty || customerForm.get('name')?.touched)" class="invalid-feedback">
+              <div *ngIf="customerForm.get('name')?.hasError('required')">El nombre es obligatorio.</div>
+              <div *ngIf="customerForm.get('name')?.hasError('minlength')">El nombre debe tener al menos 3 caracteres.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label text-purple-light fw-semibold">Correo Electrónico *</label>
+            <input 
+              type="email" 
+              id="email" 
+              class="form-control dark-input" 
+              formControlName="email" 
+              placeholder="ejemplo@correo.com"
+              [ngClass]="{'is-invalid': customerForm.get('email')?.invalid && (customerForm.get('email')?.dirty || customerForm.get('email')?.touched)}">
+            
+            <div *ngIf="customerForm.get('email')?.invalid && (customerForm.get('email')?.dirty || customerForm.get('email')?.touched)" class="invalid-feedback">
+              <div *ngIf="customerForm.get('email')?.hasError('required')">El correo es obligatorio.</div>
+              <div *ngIf="customerForm.get('email')?.hasError('email')">Ingrese un formato de correo válido.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label text-purple-light fw-semibold">Teléfono *</label>
+            <input 
+              type="text" 
+              id="phone" 
+              class="form-control dark-input" 
+              formControlName="phone" 
+              placeholder="809-000-0000"
+              [ngClass]="{'is-invalid': customerForm.get('phone')?.invalid && (customerForm.get('phone')?.dirty || customerForm.get('phone')?.touched)}">
+            
+            <div *ngIf="customerForm.get('phone')?.invalid && (customerForm.get('phone')?.dirty || customerForm.get('phone')?.touched)" class="invalid-feedback">
+              <div *ngIf="customerForm.get('phone')?.hasError('required')">El teléfono es obligatorio.</div>
+              <div *ngIf="customerForm.get('phone')?.hasError('pattern')">Solo se permiten números (mínimo 8 dígitos).</div>
+            </div>
+          </div>
+
+          <div class="form-check form-switch mb-4 p-3 rounded bg-dark border border-secondary border-opacity-10" *ngIf="clienteId">
+            <input class="form-check-input ms-0 me-3" type="checkbox" id="isActive" formControlName="isActive" style="cursor: pointer;">
+            <label class="form-check-label text-white fw-semibold" for="isActive" style="cursor: pointer;">
+              Estado del Cliente: 
+              <span [class]="customerForm.get('isActive')?.value ? 'text-success' : 'text-danger'">
+                {{ customerForm.get('isActive')?.value ? 'Activo' : 'Inactivo (Inasistencia / Bloqueado)' }}
+              </span>
+            </label>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 border-top border-secondary border-opacity-25 pt-3 mt-4">
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary px-4" 
+              (click)="closeModal()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="customerForm.invalid">
+              {{ clienteId ? 'Actualizar Cliente' : 'Guardar Cliente' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
   </div>
 </div>

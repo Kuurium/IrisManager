@@ -1,7 +1,9 @@
-﻿using IrisManager.Application.Contract;
+﻿using IrisManager.API.DTOs;
+using IrisManager.Application.Contract;
 using IrisManager.Application.Dtos;
 using IrisManager.Domain.Entities;
 using IrisManager.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace IrisManager.Application.Service
 {
@@ -26,10 +28,12 @@ namespace IrisManager.Application.Service
                 Id = a.Id,
                 CustomerId = a.CustomerId,
                 CustomerName = a.Customer?.Name ?? "N/A",
+                IsCustomerActive = a.Customer?.IsActive ?? true,
                 StylistId = a.StylistId,
                 StylistName = a.Stylist?.Name ?? "N/A",
                 ServiceId = a.ServiceId,
                 ServiceName = a.Service?.Name ?? "N/A",
+                ServicePrice = a.Service?.Price ?? 0,
                 StartTime = a.StartTime,
                 EndTime = a.EndTime,
                 Status = a.Status,
@@ -47,10 +51,12 @@ namespace IrisManager.Application.Service
                 Id = appointment.Id,
                 CustomerId = appointment.CustomerId,
                 CustomerName = appointment.Customer?.Name ?? "N/A",
+                IsCustomerActive = appointment.Customer?.IsActive ?? true,
                 StylistId = appointment.StylistId,
                 StylistName = appointment.Stylist?.Name ?? "N/A",
                 ServiceId = appointment.ServiceId,
                 ServiceName = appointment.Service?.Name ?? "N/A",
+                ServicePrice = appointment.Service?.Price ?? 0,
                 StartTime = appointment.StartTime,
                 EndTime = appointment.EndTime,
                 Status = appointment.Status,
@@ -65,7 +71,6 @@ namespace IrisManager.Application.Service
 
             var calculatedEndTime = dto.StartTime.AddMinutes(service.DurationMinutes);
 
-            // Validations
             ValidateBusinessHours(dto.StartTime, calculatedEndTime);
             await ValidateStylistAvailabilityAsync(dto.StylistId, dto.StartTime, calculatedEndTime);
 
@@ -89,6 +94,8 @@ namespace IrisManager.Application.Service
                 CustomerId = appointment.CustomerId,
                 StylistId = appointment.StylistId,
                 ServiceId = appointment.ServiceId,
+                ServiceName = service.Name,
+                ServicePrice = service.Price,
                 StartTime = appointment.StartTime,
                 EndTime = appointment.EndTime,
                 Status = appointment.Status,
@@ -119,7 +126,6 @@ namespace IrisManager.Application.Service
 
             DateTime newEndTime = newStartTime.AddMinutes(service.DurationMinutes > 0 ? service.DurationMinutes : 30);
 
-            // Validations
             ValidateBusinessHours(newStartTime, newEndTime);
             await ValidateStylistAvailabilityAsync(updateDto.StylistId, newStartTime, newEndTime, currentAppointmentId: id);
 
@@ -223,6 +229,64 @@ namespace IrisManager.Application.Service
             {
                 throw new InvalidOperationException("The stylist is already booked for this time slot.");
             }
+        }
+
+        public async Task<DashboardSummaryDto> GetDashboardSummaryAsync()
+        {
+            var today = DateTime.Today;
+
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+            var startOfWeek = today.AddDays(-1 * diff).Date;
+            var endOfWeek = startOfWeek.AddDays(7).AddTicks(-1);
+
+            var startOfMonth = new DateTime(today.Year, today.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddTicks(-1);
+
+            var allAppointments = (await _appointmentRepository.GetAllAsync()).ToList();
+
+            var todayAppointments = allAppointments.Where(a => a.StartTime.Date == today).ToList();
+            var weekAppointments = allAppointments.Where(a => a.StartTime >= startOfWeek && a.StartTime <= endOfWeek).ToList();
+            var monthAppointments = allAppointments.Where(a => a.StartTime >= startOfMonth && a.StartTime <= endOfMonth).ToList();
+
+            var activeStylists = todayAppointments
+                .Where(a => a.Stylist != null)
+                .GroupBy(a => new { a.StylistId, Name = a.Stylist?.Name ?? "Sin nombre" })
+                .Select(g => new StylistDailySummaryDto
+                {
+                    StylistId = g.Key.StylistId,
+                    StylistName = g.Key.Name ?? "Sin nombre",
+                    AppointmentsCount = g.Count()
+                })
+                .ToList();
+
+            var topService = monthAppointments
+                .GroupBy(a => a.Service?.Name)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "Sin registros";
+
+            var topPayment = monthAppointments
+                .GroupBy(a => a.PaymentMethod)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "N/A";
+
+            return new DashboardSummaryDto
+            {
+                AppointmentsToday = todayAppointments.Count,
+                AppointmentsThisWeek = weekAppointments.Count,
+                TodayDayName = today.ToString("dddd", new System.Globalization.CultureInfo("es-ES")),
+                ScheduledCount = allAppointments.Count(a => a.Status == "Scheduled" || a.Status == "Programada"),
+                RescheduledCount = allAppointments.Count(a => a.Status == "Rescheduled" || a.Status == "Reprogramada"),
+                CompletedCount = allAppointments.Count(a => a.Status == "Completed" || a.Status == "Completada"),
+                CancelledCount = allAppointments.Count(a => a.Status == "Cancelled" || a.Status == "Cancelada"),
+                TotalRevenueMonth = monthAppointments
+                    .Where(a => a.Status == "Completed" || a.Status == "Completada")
+                    .Sum(a => a.Service?.Price ?? 0),
+                MostPopularService = topService,
+                PreferredPaymentMethod = topPayment,
+                ActiveStylistsToday = activeStylists
+            };
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using IrisManager.Application.Contract;
+﻿using IrisManager.API.DTOs;
+using IrisManager.Application.Contract;
 using IrisManager.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -113,6 +114,13 @@ namespace IrisManager.API.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("dashboard-summary")]
+        public async Task<ActionResult<DashboardSummaryDto>> GetDashboardSummary()
+        {
+            var summary = await _appointmentService.GetDashboardSummaryAsync();
+            return Ok(summary);
         }
     }
 }

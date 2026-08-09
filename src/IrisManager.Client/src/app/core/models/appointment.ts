@@ -2,11 +2,13 @@ export interface Appointment {
   id: number;
   customerId: number;
   customerName: string;
+  isCustomerActive?: boolean;
   stylistId: number;
   stylistName: string;
   serviceId: number;
   serviceName: string;
-  startTime: string; // ISO string de la fecha/hora
+  servicePrice?: number;
+  startTime: string;
   endTime: string;
   status: 'Scheduled' | 'Completed' | 'Cancelled' | string;
   paymentMethod?: string;

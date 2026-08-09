@@ -12,6 +12,8 @@
 
         public int ServiceId { get; set; }
         public string ServiceName { get; set; } = string.Empty;
+        public decimal ServicePrice { get; set; }
+        public bool IsCustomerActive { get; set; } = true;
 
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

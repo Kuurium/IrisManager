@@ -14,5 +14,6 @@ namespace IrisManager.Application.Dtos
         public string Phone { get; set; } = string.Empty;
 
         public string? Email { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -1,0 +1,48 @@
+
+.bg-dark-card {
+  background-color: #1a1a28 !important;
+}
+
+.border-purple {
+  border-color: #8b5cf6 !important;
+}
+
+.border-purple-subtle {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+}
+
+
+.text-purple-bright {
+  color: #c4b5fd !important; 
+}
+
+.text-white-85 {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.text-white-60 {
+  color: rgba(255, 255, 255, 0.65) !important; 
+}
+
+.fs-7 {
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+
+.card-body, .card {
+  .text-muted, 
+  .text-secondary {
+    color: #cbd5e1 !important;
+  }
+}

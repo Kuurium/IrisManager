@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularClient", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // URL de tu cliente Angular
+        policy.WithOrigins("http://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -58,3 +58,9 @@ app.Run();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });

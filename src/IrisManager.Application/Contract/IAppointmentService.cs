@@ -1,4 +1,5 @@
-﻿using IrisManager.Application.Dtos;
+﻿using IrisManager.API.DTOs;
+using IrisManager.Application.Dtos;
 
 namespace IrisManager.Application.Contract
 {
@@ -10,5 +11,6 @@ namespace IrisManager.Application.Contract
         Task<bool> UpdateAppointmentStatusAsync(int id, AppointmentUpdateStatusDto dto);
         Task<bool> DeleteAppointmentAsync(int id);
         Task UpdateAppointmentAsync(int id, AppointmentUpdateDto updateDto);
+        Task<DashboardSummaryDto> GetDashboardSummaryAsync();
     }
 }
