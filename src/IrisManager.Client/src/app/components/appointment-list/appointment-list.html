@@ -17,7 +17,6 @@
         {{ showInactiveCustomers ? 'Ocultar clientes inactivos' : 'Mostrar clientes inactivos' }}
       </button>
 
-      <!-- Cambiado routerLink por evento (click)="openModal()" -->
       <button class="btn btn-primary" (click)="openModal()">
         + Nueva Cita
       </button>
@@ -81,7 +80,6 @@
           </td>
 
           <td class="text-center text-nowrap">
-            <!-- Cambiado routerLink por evento (click)="openModal(apt)" -->
             <button class="btn btn-sm btn-outline-warning me-2" (click)="openModal(apt)">
               Editar
             </button>
@@ -99,7 +97,6 @@
   </div>
 </div>
 
-<!-- COMPONENTE MODAL EMERGENTE DE CITA -->
 <app-appointment-form 
   *ngIf="showModal" 
   [appointmentToEdit]="selectedAppointment" 
