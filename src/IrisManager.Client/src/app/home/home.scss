@@ -1,6 +1,10 @@
+:host {
+  display: block;
+}
+
 .home-container {
   min-height: calc(100vh - 80px);
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem;
 }
 
 .logo-wrapper {
@@ -15,6 +19,7 @@
   box-shadow: 0 0 50px rgba(139, 92, 246, 0.4);
   overflow: hidden;
   position: relative;
+  margin: 0 auto;
 
   .main-logo {
     width: 100%;
@@ -38,7 +43,8 @@
   }
 }
 
-.info-card, .bg-dark-card {
+.info-card, 
+.bg-dark-card {
   background-color: #1a1a28 !important;
 }
 
@@ -48,4 +54,42 @@
 
 .text-purple-bright {
   color: #a78bfa !important;
+}
+
+@media screen and (max-height: 900px) {
+  
+  .home-container {
+    padding: 0.5rem 1rem !important;
+  }
+
+  .logo-wrapper {
+    width: 175px !important;
+    height: 175px !important;
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.35) !important;
+
+    .main-logo {
+      transform: scale(1.45) !important;
+    }
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+    margin-top: 0.2rem !important;
+    margin-bottom: 0.1rem !important;
+  }
+
+  p {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .home-card, 
+  .info-card, 
+  .card {
+    padding: 0.75rem !important;
+  }
+
+  .card-body {
+    padding: 0.5rem !important;
+  }
 }
